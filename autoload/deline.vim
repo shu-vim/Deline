@@ -362,6 +362,12 @@ endfunction
 let s:fileInnerCache = {} " {bufnr(num): {fmt(string): {value: (string), age: (num)}}}
 function! deline#fileInner(fmt)
     let bufnr = bufnr("%")
+    " let defva = {"age": 0}
+    " let va = get(get(s:fileInnerCache, bufnr, {}), a:fmt, defva)
+    " if va.age > 0
+    "     let s:fileInnerCache[bufnr][a:fmt].age = s:fileInnerCache[bufnr][a:fmt].age - 1
+    "     return va.value
+    " endif
     if has_key(s:fileInnerCache, bufnr) && has_key(s:fileInnerCache[bufnr], a:fmt)
         let va = s:fileInnerCache[bufnr][a:fmt]
         if va.age > 0
@@ -443,20 +449,23 @@ endfunction
 
 
 let s:last_mode = '0'
+let s:last_mode_hl = {}
 function! deline#modeHLInner(hlname)
     let mode = mode()
 
-    let hlinfo = get(s:config, "mode_" . mode, {})
-    if empty(hlinfo)
-        return ""
-    endif
-
-    "if mode != get(s:config, "last_mode", "")
+    let hlinfo = s:last_mode_hl
     if mode != s:last_mode
-        call deline#_highlight(a:hlname, get(s:config, "mode_" . mode, {}))
+        let hlinfo = get(s:config, "mode_" . mode, {})
+        if empty(hlinfo)
+            return ""
+        endif
+
+        "call deline#_highlight(a:hlname, get(s:config, "mode_" . mode, {}))
+        call deline#_highlight(a:hlname, hlinfo)
         redraw
 
         let s:last_mode = mode
+        let s:last_mode_hl = hlinfo
     endif
 
     return ""
