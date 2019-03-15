@@ -12,7 +12,7 @@
 
 ## Screenshot
 
-not yet.
+![Imgur](https://i.imgur.com/t3fQPlc.png)
 
 ## Examples
 
