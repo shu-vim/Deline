@@ -120,5 +120,5 @@ endif
 augroup Deline
 autocmd!
 autocmd VimEnter * call deline#_initHighlight()
-autocmd ColorScheme * let &statusline=&statusline | call deline#_initHighlight()
+autocmd BufEnter,ColorScheme * call deline#_apply() | call deline#_initHighlight()
 augroup END
