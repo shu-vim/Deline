@@ -474,6 +474,10 @@ endfunction
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 function! deline#notsavedInner(min_ago)
+    if &modified == 0
+        return ""
+    endif
+
     let t = undotree()
     let seq = t.seq_cur
     let s = t.save_cur
