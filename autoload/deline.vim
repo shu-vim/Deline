@@ -623,20 +623,23 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-let s:weatherid = 0
+let s:weatherids = {} " url => timer_id
 function! deline#weatherhacks(url, interval)
-    if s:weatherid == 0
+    let id = get(s:weatherids, a:url, 0)
+    if id == 0
         let interval = a:interval
         if interval < 1000
             let interval = 60 * 60 * 1000
         endif
-        let s:weatherid = timer_start(interval, "deline#_weather", {"repeat": -1})
-        call deline#_config_set("deline/weather/" . string(s:weatherid) . "/url", a:url)
-        call deline#_weather(s:weatherid)
-    endif
-    "echom 'weatherhacks ' . a:url . ' ' . interval . ' => ' . s:weatherid
 
-    return "%{deline#weatherhacksInner('" . string(s:weatherid) . "')}"
+        let id = timer_start(interval, "deline#_weather", {"repeat": -1})
+        let s:weatherids[a:url] = id
+        call deline#_config_set("deline/weather/" . string(id) . "/url", a:url)
+        call deline#_weather(id)
+    endif
+    "echom 'weatherhacks ' . a:url . ' ' . interval . ' => ' . id
+
+    return "%{deline#weatherhacksInner('" . string(id) . "')}"
 endfunction
 
 function! deline#weatherhacksInner(id)
