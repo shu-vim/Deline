@@ -623,66 +623,6 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-let s:weatherids = {} " url => timer_id
-function! deline#weatherhacks(url, interval)
-    let id = get(s:weatherids, a:url, 0)
-    if id == 0
-        let interval = a:interval
-        if interval < 1000
-            let interval = 60 * 60 * 1000
-        endif
-
-        let id = timer_start(interval, "deline#_weather", {"repeat": -1})
-        let s:weatherids[a:url] = id
-        call deline#_config_set("deline/weather/" . string(id) . "/url", a:url)
-        call deline#_weather(id)
-    endif
-    "echom 'weatherhacks ' . a:url . ' ' . interval . ' => ' . id
-
-    return "%{deline#weatherhacksInner('" . string(id) . "')}"
-endfunction
-
-function! deline#weatherhacksInner(id)
-    let w = deline#_config_get("deline/weather/" . a:id . "/content", "")
-    "echom 'deline#weatherhacksInner(' . a:id . '): ' . w
-    return w
-endfunction
-
-function! deline#_weather(id)
-    let url = deline#_config_get("deline/weather/" . a:id . "/url", "")
-    if url == ""
-        return
-    endif
-    "echom '_weather ' . url
-
-    try
-        let res = webapi#http#get(url)
-
-        let mode = 0
-        let now = strftime('%Y-%m-%d')
-        for line in split(res.content, '\n')
-            if mode == 0 
-                if line =~ '^UID:.*' . now
-                    let mode = 1
-                endif
-            elseif mode == 1
-                if line =~ '^SUMMARY:.*'
-                    call deline#_config_set("deline/weather/" . string(a:id) . "/content", trim(strpart(line, 8)))
-                    "echom 'deline#_weather(' . a:id . '): ' . trim(strpart(line, 8))
-                    return
-                endif
-            endif
-        endfor
-    catch ex
-        "echom ex
-    endtry
-
-    call deline#_config_set("deline/weather/" . string(a:id) . "/content", "")
-endfunction
-
-"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-
 let s:fileids = {} " url => timer_id
 function! deline#head(filepath, enc, interval)
     let id = get(s:fileids, a:filepath, 0)
