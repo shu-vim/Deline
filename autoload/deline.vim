@@ -620,3 +620,59 @@ function! deline#filetailInner(filepath, interval)
 
     return line
 endfunction
+
+"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+let s:weatherid = 0
+function! deline#weatherhacks(url, interval)
+    if s:weatherid == 0
+        let interval = a:interval
+        if interval < 1000
+            let interval = 60 * 60 * 1000
+        endif
+        let s:weatherid = timer_start(interval, "deline#_weather", {"repeat": -1})
+        call deline#_config_set("deline/weather/" . string(s:weatherid) . "/url", a:url)
+        call deline#_weather(s:weatherid)
+    endif
+    "echom 'weatherhacks ' . a:url . ' ' . interval . ' => ' . s:weatherid
+
+    return "%{deline#weatherhacksInner('" . string(s:weatherid) . "')}"
+endfunction
+
+function! deline#weatherhacksInner(id)
+    let w = deline#_config_get("deline/weather/" . a:id . "/content", "")
+    "echom 'deline#weatherhacksInner(' . a:id . '): ' . w
+    return w
+endfunction
+
+function! deline#_weather(id)
+    let url = deline#_config_get("deline/weather/" . a:id . "/url", "")
+    if url == ""
+        return
+    endif
+    "echom '_weather ' . url
+
+    try
+        let res = webapi#http#get(url)
+
+        let mode = 0
+        let now = strftime('%Y-%m-%d')
+        for line in split(res.content, '\n')
+            if mode == 0 
+                if line =~ '^UID:.*' . now
+                    let mode = 1
+                endif
+            elseif mode == 1
+                if line =~ '^SUMMARY:.*'
+                    call deline#_config_set("deline/weather/" . string(a:id) . "/content", trim(strpart(line, 8)))
+                    "echom 'deline#_weather(' . a:id . '): ' . trim(strpart(line, 8))
+                    return
+                endif
+            endif
+        endfor
+    catch ex
+        "echom ex
+    endtry
+
+    call deline#_config_set("deline/weather/" . string(a:id) . "/content", "")
+endfunction
