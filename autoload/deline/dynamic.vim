@@ -41,60 +41,6 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-function! deline#dynamic#head(filepath, interval)
-    let id = timer_start(a:interval, "deline#dynamic#_read_head", {"repeat": -1})
-    call deline#_config_set("deline/dynamic/head/" . string(id) . "/filepath", a:filepath)
-
-    let d = {"filepath": a:filepath, "interval": a:interval, "id": id }
-    function! d.eval() dict
-        return "%{deline#dynamic#readInner('" . string(self.id) . "')}"
-    endfunction
-    return d
-endfunction
-
-function! deline#dynamic#tail(filepath, enc, interval)
-    let id = timer_start(a:interval, "deline#dynamic#_read_tail", {"repeat": -1})
-    call deline#_config_set("deline/dynamic/head/" . string(id) . "/filepath", a:filepath)
-    call deline#_config_set("deline/dynamic/head/" . string(id) . "/enc", a:enc)
-
-    let d = {"filepath": a:filepath, "interval": a:interval, "id": id }
-    function! d.eval() dict
-        return "%{deline#dynamic#readInner('" . string(self.id) . "')}"
-    endfunction
-    return d
-endfunction
-
-function! deline#dynamic#readInner(id)
-    let line = deline#_config_get("deline/dynamic/head/" . a:id . "/content", "")
-    let enc = deline#_config_get("deline/dynamic/head/" . a:id . "/enc", "")
-    if enc != "" && enc != &encoding && has('iconv')
-        let line = iconv(line, enc, &encoding)
-    endif
-    return line
-endfunction
-
-function! deline#dynamic#_read_head(id)
-    let filepath = expand(deline#_config_get("deline/dynamic/head/" . string(a:id) . "/filepath", ""))
-    try
-        let line = readfile(filepath, "", 1)
-    catch
-        let line = [""]
-    endtr
-    call deline#_config_set("deline/dynamic/head/" . string(a:id) . "/content", line[0])
-endfunction
-
-function! deline#dynamic#_read_tail(id)
-    let filepath = expand(deline#_config_get("deline/dynamic/head/" . string(a:id) . "/filepath", ""))
-    try
-        let line = readfile(filepath, "", -1)
-    catch
-        let line = [""]
-    endtr
-    call deline#_config_set("deline/dynamic/head/" . string(a:id) . "/content", trim(line[0]))
-endfunction
-
-"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 let s:periodic_timer_id = 0
 function! deline#dynamic#periodic(period)
     let d = {"period": a:period}

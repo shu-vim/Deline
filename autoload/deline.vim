@@ -679,3 +679,72 @@ function! deline#_weather(id)
 
     call deline#_config_set("deline/weather/" . string(a:id) . "/content", "")
 endfunction
+
+"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+let s:fileids = {} " url => timer_id
+function! deline#head(filepath, enc, interval)
+    let id = get(s:fileids, a:filepath, 0)
+    if id == 0
+        let interval = a:interval
+        if interval < 1000
+            let interval = 60 * 60 * 1000
+        endif
+
+        let id = timer_start(interval, "deline#_read_head", {"repeat": -1})
+        let s:fileids[a:filepath] = id
+        call deline#_config_set("deline/head/" . string(id) . "/filepath", a:filepath)
+        call deline#_config_set("deline/head/" . string(id) . "/enc", a:enc)
+        call deline#_read_head(id)
+    endif
+
+    return "%{deline#readInner('" . string(id) . "')}"
+endfunction
+
+function! deline#tail(filepath, enc, interval)
+    let id = get(s:fileids, a:filepath, 0)
+    if id == 0
+        let interval = a:interval
+        if interval < 1000
+            let interval = 60 * 60 * 1000
+        endif
+
+        let id = timer_start(interval, "deline#_read_tail", {"repeat": -1})
+        let s:fileids[a:filepath] = id
+        call deline#_config_set("deline/head/" . string(id) . "/filepath", a:filepath)
+        call deline#_config_set("deline/head/" . string(id) . "/enc", a:enc)
+        call deline#_read_tail(id)
+    endif
+
+    return "%{deline#readInner('" . string(id) . "')}"
+endfunction
+
+function! deline#readInner(id)
+    let line = deline#_config_get("deline/head/" . a:id . "/content", "")
+    let enc = deline#_config_get("deline/head/" . a:id . "/enc", "")
+    if enc != "" && enc != &encoding && has('iconv')
+        let line = iconv(line, enc, &encoding)
+    endif
+    return line
+endfunction
+
+function! deline#_read_head(id)
+    let filepath = expand(deline#_config_get("deline/head/" . string(a:id) . "/filepath", ""))
+    try
+        let line = readfile(filepath, "", 1)
+    catch
+        let line = [""]
+    endtr
+    call deline#_config_set("deline/head/" . string(a:id) . "/content", line[0])
+endfunction
+
+function! deline#_read_tail(id)
+    let filepath = expand(deline#_config_get("deline/head/" . string(a:id) . "/filepath", ""))
+    try
+        let line = readfile(filepath, "", -1)
+    catch
+        let line = [""]
+    endtr
+    call deline#_config_set("deline/head/" . string(a:id) . "/content", trim(line[0]))
+endfunction
