@@ -1,6 +1,8 @@
 let s:weatherids = {} " url => timer_id
 "
-" Tokyo: http://weather.livedoor.com/weather_hacks/ical
+""" fetch & displays weather info from weatherhacks site. 
+""" Tokyo: http://weather.livedoor.com/weather_hacks/ical
+""" sort:extra
 function! deline#extra#weatherhacks(url, interval)
     let id = get(s:weatherids, a:url, 0)
     if id == 0

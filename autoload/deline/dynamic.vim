@@ -1,3 +1,22 @@
+"""returns {expr} dynamically.
+"""{expr} is a string of Vim expression like function call.
+"""Unlike |deline#expr()|, this function does not return string to be
+"""passed to statusline. This returns an object that holds "return the
+"""result of evaluation".
+"""
+"""Example: >
+"""	call Deline([
+"""	    \ deline#comment("(1)"),
+"""	    \ deline#dynamic#expr("strftime('%T')"),
+"""	    \ 
+"""	    \ deline#comment("(2)"),
+"""	    \ deline#expr("strftime('%T')"),
+"""	    \ ])
+"""<
+"""	(1) At EVERY evaluation of statusline, dynamically returns the
+"""	    result of strftime('%T').
+"""	(2) At ONCE, returns the result of strftime('%T').
+"""sort:dynamic
 function! deline#dynamic#expr(expr)
     let d = {"expr": a:expr}
     function! d.eval() dict
@@ -8,6 +27,9 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+"""if eval({expr}) then {t} else {f}
+"""Dynamically returns {t} or {f} by eval({expr}).
+"""sort:dynamic
 function! deline#dynamic#if(expr, t, f)
     let d = {
                 \ "expr": a:expr,
@@ -23,6 +45,29 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+"""elem of {list} one by one
+"""{list} is a list of text.
+"""Changes texts one by one on every evaluation.
+"""
+"""Example: >
+"""    call Deline([
+"""        \ deline#dynamic#cyclic(["a", "b", "c"]),
+"""        \ ])
+"""<
+"""        * moving cursor ...
+"""        ______________________________________ 
+"""        a
+"""        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+"""        ______________________________________ 
+"""        b
+"""        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+"""        ______________________________________ 
+"""        c
+"""        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+"""        ______________________________________ 
+"""        a
+"""        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+"""sort:dynamic
 function! deline#dynamic#cyclic(list)
     let d = {
                 \ "list": a:list,
@@ -42,6 +87,49 @@ endfunction
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 let s:periodic_timer_id = 0
+
+"""defines {period} by millisecond.
+"""Start timer so that |deline-dynamic-functions| are called periodicaly.
+"""Non-dynamic functions are not in effect by this function.
+"""
+"""Without calling this function, all dynamic functions are only
+"""evaluated as statusline is evaluated.
+"""(Moving cursor, changing mode, ...)
+"""
+"""Example1: >
+"""    call Deline([
+"""        \ deline#comment("(1)"),
+"""        \ deline#dynamic#periodic(100),
+"""        \
+"""        \ deline#comment("(2)"),
+"""        \ deline#dynamic#expr("strftime('%T')"),
+"""        \
+"""        \ deline#comment("(3)"),
+"""        \ deline#expr("strftime('%T')"),
+"""        \ ])
+"""<
+"""    (1) Declare period is 100ms.
+"""    (2) Dynamic expr is evaluated every period.
+"""    (3) This non-dynamic expr is evaluated once before call
+"""        Deline().
+"""
+"""Example2: >
+"""    call Deline([
+"""        \ deline#comment("(1) NO deline#dynamic#periodic()"),
+"""
+"""        \ deline#comment("(2)"),
+"""        \ deline#dynamic#expr("strftime('%T')"),
+"""        \
+"""        \ deline#comment("(3)"),
+"""        \ deline#expr("strftime('%T')"),
+"""        \ ])
+"""<
+"""    (1) NO deline#dynamic#periodic().
+"""    (2) Dynamic expr is evaluated every re-evaluation of
+"""        statusline.
+"""    (3) This non-dynamic expr is evaluated once before call
+"""        Deline().
+"""sort:dynamic
 function! deline#dynamic#periodic(period)
     let d = {"period": a:period}
     function! d.eval() dict

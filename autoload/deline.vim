@@ -1,144 +1,179 @@
-function! deline#hl(h)
-    if type(a:h) == 0
-        return "%" . string(a:h) . "*"
+
+"""change highlight {hlname}.
+function! deline#hl(hlname)
+    if type(a:hlname) == 0
+        return "%" . string(a:hlname) . "*"
     else
-        return "%#" . a:h . "#"
+        return "%#" . a:hlname . "#"
     endif
 endfunction
 
-" can not put statusline expressions
+"""evaluates {expr} and returns {t} or {f}
 function! deline#if(expr,t,f)
     return "%{" . a:expr . "?'" . a:t . "':'" . a:f . "'}"
 endfunction
 
+"""evaluated vim expr
 function! deline#expr(expr)
     return "%{" . a:expr . "}"
 endfunction
 
+"""comment (simply ignored as statusline)
 function! deline#comment(text)
     return ""
 endfunction
 
+"""|system()|
 function! deline#system(cmd)
     return "%{system('" . a:cmd . "')}"
 endfunction
 
+"""|strftime()|
 function! deline#strftime(fmt)
     return "%{strftime('" . a:fmt . "')}"
 endfunction
 
+"""' '
 function! deline#space()
     return ' '
 endfunction
 
+"""|
 function! deline#bar()
     return '|'
 endfunction
 
+"""%=
 function! deline#rightalign()
     return '%='
 endfunction
 
+"""file name
 function! deline#file(fmt)
     return "%{deline#fileInner('" . a:fmt . "')}"
 endfunction
 
+"""returns {t} if &modified, else {f}
 function! deline#modified(t,f)
     return "%{&modified?'" . a:t . "':'". a:f . "'}"
 endfunction
 
+"""returns {t} if &readonly, else {f}
 function! deline#readonly(t,f)
     return "%{&readonly||!(&modifiable)?'" . a:t . "':'". a:f . "'}"
 endfunction
 
+"""%h
 function! deline#helpfile()
     return "%h"
 endfunction
 
+"""%w
 function! deline#preview()
     return "%w"
 endfunction
 
+"""%q
 function! deline#quickfix()
     return "%q"
 endfunction
 
+"""%k
 function! deline#keymap()
     return "%k"
 endfunction
 
+"""%n
 function! deline#bufnr()
     return "%n"
 endfunction
 
+"""%b
 function! deline#char()
     return "%b"
 endfunction
 
+"""%B
 function! deline#charhex()
     return "%B"
 endfunction
 
+"""%o
 function! deline#offset()
     return "%o"
 endfunction
 
+"""%O
 function! deline#offsethex()
     return "%O"
 endfunction
 
+"""%N
 function! deline#page()
     return "%N"
 endfunction
 
+"""%l
 function! deline#line()
     return "%4l"
 endfunction
 
+"""%L
 function! deline#numlines()
     return "%4L"
 endfunction
 
+"""%c
 function! deline#column()
     return "%3c"
 endfunction
 
+"""%v
 function! deline#columnv()
     return "%3v"
 endfunction
 
+"""%V
 function! deline#columnvoptional()
     return "%V"
 endfunction
 
+"""%p
 function! deline#linepercent()
     return "%p"
 endfunction
 
+"""%P
 function! deline#winpercent()
     return "%P"
 endfunction
 
+"""%a
 function! deline#argpos()
     return "%a"
 endfunction
 
+"""&filetype
 function! deline#filetype()
     return "%{&filetype}"
 endfunction
 
+"""&fileformat
 function! deline#fileformat()
     return "%{&fileformat}"
 endfunction
 
+"""&fileencoding
 function! deline#fileencoding()
     return "%{&fileencoding}"
 endfunction
 
+"""the name of mode 'NORMAL', ...
 function! deline#mode()
     return "%{deline#modeInner()}"
 endfunction
 
+"""re-define highlight as {hlname}
 function! deline#modeHL(hlname)
     let hlname = a:hlname
     if hlname == ""
@@ -147,14 +182,20 @@ function! deline#modeHL(hlname)
     return "%{deline#modeHLInner('" . hlname . "')}"
 endfunction
 
+"""displays delta time from last save. 
+"""
+"""Returns duration from last save in "{hour}h{minute}m" format.
+"""{min_ago} is a Number to suppress output if the duration(in minute) < {min_ago}. 
 function! deline#notsaved(min_ago)
     return "%{deline#notsavedInner(" . a:min_ago . ")}"
 endfunction
 
+"""displays the first line of the {filepath} at {inteerval}.
 function! deline#filehead(filepath, interval)
     return "%{deline#fileheadInner('" . a:filepath . "', " . string(a:interval) . ")}"
 endfunction
 
+"""displays the last line of the {filepath} at {inteerval}.
 function! deline#filetail(filepath, interval)
     return "%{deline#filetailInner('" . a:filepath . "', " . string(a:interval) . ")}"
 endfunction
@@ -385,7 +426,7 @@ function! deline#fileInner(fmt)
         endif
 
         let s:fileInnerCache[bufnr] = {
-                    \ a:fmt: {
+                    \ a:fmt : {
                     \   "value": v,
                     \   "age": 25,
                     \ },
@@ -416,7 +457,7 @@ function! deline#fileInner(fmt)
 
     if !has_key(s:fileInnerCache, bufnr)
         let s:fileInnerCache[bufnr] = {
-                    \ a:fmt: {
+                    \ a:fmt : {
                     \   "value": v,
                     \   "age": age,
                     \ },
