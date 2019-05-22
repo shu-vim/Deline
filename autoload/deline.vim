@@ -173,13 +173,40 @@ function! deline#mode()
     return "%{deline#modeInner()}"
 endfunction
 
-"""re-define highlight as {hlname}
+"""DEPLICATED. re-define highlight as {hlname}
 function! deline#modeHL(hlname)
+    return deline#defHLMode(a:hlname)
+endfunction
+
+"""re-define highlight as {hlname}
+function! deline#defHLMode(hlname)
     let hlname = a:hlname
     if hlname == ""
         let hlname = "User2"
     endif
-    return "%{deline#modeHLInner('" . hlname . "')}"
+    return "%{deline#defHLModeInner('" . hlname . "')}"
+endfunction
+
+""" define highlight {hlname} with "attr=value attr=value ..." format string {attrs}
+function! deline#defHL(hlname, attrs)
+    return "%{deline#defHLInner('" . a:hlname . "', '" . a:attrs . "')}"
+endfunction
+
+""" define highlight {hlname} from inverted {basehlname}
+function! deline#defHLInv(hlname, basehlname)
+    return "%{deline#defHLInvInner('" . a:hlname . "', '" . a:basehlname . "')}"
+endfunction
+
+""" define combined highlight {hlname} from fg:{fghlname} and bg:{bghlname}
+"""
+""" {fghlname} and {bghlname} can be "attr=value attr=value ..." format string.
+function! deline#defHLCombined(hlname, fghlname, bghlname)
+    return "%{deline#defHLCombinedInner('" . a:hlname . "', '" . a:fghlname . "', '" . a:bghlname . "')}"
+endfunction
+
+""" define combined highlight {hlname} from fg:bg of {lhlname} and bg:bg of {rhlname}
+function! deline#defHLBGTrans(hlname, lhlname, rhlname)
+    return "%{deline#defHLBGTransInner('" . a:hlname . "', '" . a:lhlname . "', '" . a:rhlname . "')}"
 endfunction
 
 """displays delta time from last save. 
@@ -490,26 +517,218 @@ endfunction
 
 
 let s:last_mode = '0'
-let s:last_mode_hl = {}
-function! deline#modeHLInner(hlname)
+function! deline#defHLModeInner(hlname)
     let mode = mode()
 
-    let hlinfo = s:last_mode_hl
     if mode != s:last_mode
         let hlinfo = get(s:config, "mode_" . mode, {})
         if empty(hlinfo)
             return ""
         endif
 
-        "call deline#_highlight(a:hlname, get(s:config, "mode_" . mode, {}))
         call deline#_highlight(a:hlname, hlinfo)
         redraw
 
         let s:last_mode = mode
-        let s:last_mode_hl = hlinfo
     endif
 
     return ""
+endfunction
+
+let s:last_inv_mode = '0'
+function! deline#modeHLInvInner(hlname)
+    let mode = mode()
+
+    if mode != s:last_inv_mode
+        let hlinfo = get(s:config, "mode_" . mode, {})
+        if empty(hlinfo)
+            return ""
+        endif
+
+        let hlinfo = copy(hlinfo)
+
+        let guibg = get(hlinfo, "guifg", "")
+        let guifg = get(hlinfo, "guibg", "")
+        let ctermbg = get(hlinfo, "ctermfg", "")
+        let ctermfg = get(hlinfo, "ctermbg", "")
+
+        if guibg != "" | let hlinfo["guibg"] = guibg | endif
+        if guifg != "" | let hlinfo["guifg"] = guifg | endif
+        if ctermbg != "" | let hlinfo["ctermbg"] = ctermbg | endif
+        if ctermfg != "" | let hlinfo["ctermfg"] = ctermfg | endif
+
+        call deline#_highlight(a:hlname, hlinfo)
+        redraw
+
+        let s:last_inv_mode = mode
+    endif
+
+    return ""
+endfunction
+
+"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+let s:defhlset = {} "except defHLMode
+
+function! deline#defHLInner(hlname, attrs)
+    if get(s:defhlset, a:hlname, "") == ""
+        let s:defhlset[a:hlname] = "*"
+    else
+        return ""
+    endif
+
+    "term=bold ctermfg=16 ctermbg=231 guifg=#bbbbbb guibg=#ffffff
+    let hh = split(a:attrs, '\%(\\\)\@<!\(\s\|\n\)')
+    let hldict = {}
+    for c in hh
+        let cc = split(c, "=")
+        if len(cc) == 2
+            let hldict[cc[0]] = cc[1]
+        endif
+    endfor
+
+    call deline#_highlight(a:hlname, hldict)
+    
+    return ""
+endfunction
+
+"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+function! deline#defHLInvInner(hlname, basehlname)
+    if get(s:defhlset, a:hlname, "") == ""
+        let s:defhlset[a:hlname] = "*"
+    else
+        return ""
+    endif
+
+    silent let hl = deline#_parseHL(a:basehlname)
+
+    let guibg = get(hl, "guifg", "")
+    let guifg = get(hl, "guibg", "")
+    let ctermbg = get(hl, "ctermfg", "")
+    let ctermfg = get(hl, "ctermbg", "")
+
+    if guibg != "" | let hl["guibg"] = guibg | endif
+    if guifg != "" | let hl["guifg"] = guifg | endif
+    if ctermbg != "" | let hl["ctermbg"] = ctermbg | endif
+    if ctermfg != "" | let hl["ctermfg"] = ctermfg | endif
+
+    call deline#_highlight(a:hlname, hl)
+
+    return ""
+endfunction
+
+"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+function! deline#defHLCombinedInner(hlname, fghlname, bghlname)
+    if get(s:defhlset, a:hlname, "") == ""
+        let s:defhlset[a:hlname] = "*"
+    else
+        return ""
+    endif
+
+    if a:fghlname =~ "="
+        silent let fghl = deline#_parseHLAttrs(a:fghlname)
+    else
+        silent let fghl = deline#_parseHL(a:fghlname)
+    endif
+
+    if a:bghlname =~ "="
+        silent let bghl = deline#_parseHLAttrs(a:bghlname)
+    else
+        silent let bghl = deline#_parseHL(a:bghlname)
+    endif
+        
+
+    let hl = copy(fghl)
+
+    let guibg = get(bghl, "guibg", "")
+    let ctermbg = get(bghl, "ctermbg", "")
+
+    if guibg != "" | let hl["guibg"] = guibg | endif
+    if ctermbg != "" | let hl["ctermbg"] = ctermbg | endif
+
+    call deline#_highlight(a:hlname, hl)
+
+    return ""
+endfunction
+
+"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+function! deline#defHLBGTransInner(hlname, lhlname, rhlname)
+    if get(s:defhlset, a:hlname, "") == ""
+        let s:defhlset[a:hlname] = "*"
+    else
+        return ""
+    endif
+
+    try
+        silent let lhl = deline#_parseHL(a:lhlname)
+    catch
+        silent let lhl = deline#_parseHL("Normal")
+    endtry
+
+    try
+        silent let rhl = deline#_parseHL(a:rhlname)
+    catch
+        silent let rhl = deline#_parseHL("Normal")
+    endtry
+
+    let hl = copy(lhl)
+
+    "combine
+    let guifg = get(lhl, "guibg", "")
+    let ctermfg = get(lhl, "ctermbg", "")
+    let guibg = get(rhl, "guibg", "")
+    let ctermbg = get(rhl, "ctermbg", "")
+
+    if guibg != "" | let hl["guibg"] = guibg | endif
+    if guifg != "" | let hl["guifg"] = guifg | endif
+    if ctermbg != "" | let hl["ctermbg"] = ctermbg | endif
+    if ctermfg != "" | let hl["ctermfg"] = ctermfg | endif
+
+    call deline#_highlight(a:hlname, hl)
+
+    return ""
+endfunction
+
+function! deline#_parseHL(hlname)
+    let h = ""
+    silent redir => h
+    try
+        execute "hi " . a:hlname
+    catch
+        "nop!!!
+    finally
+        redir END
+    endtry
+
+    let h = trim(h)
+
+    if h =~ "="
+        "Comment        xxx term=bold ctermfg=16 ctermbg=231 guifg=#bbbbbb guibg=#ffffff
+        let hh = substitute(h, '\w\+\s\+\w\+\s\+', '', '')
+        "term=bold ctermfg=16 ctermbg=231 guifg=#bbbbbb guibg=#ffffff
+        return deline#_parseHLAttrs(hh)
+    elseif h =~ "links to"
+        "vimComment        xxx links to Comment
+        let hh = substitute(h, '.*links to \(\w\+\).*', '\1', "")
+        return deline#_parseHL(hh)
+    else
+        return deline#_parseHL("Normal")
+    endif
+endfunction
+
+function! deline#_parseHLAttrs(attrs)
+    let hh = split(a:attrs, '\%(\\\)\@<!\(\s\|\n\)')
+    let hldict = {}
+    for c in hh
+        let cc = split(c, "=")
+        if len(cc) == 2
+            let hldict[cc[0]] = cc[1]
+        endif
+    endfor
+    return hldict
 endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
