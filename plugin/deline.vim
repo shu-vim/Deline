@@ -198,7 +198,7 @@ if g:Deline_DefaultDefinitions
                 \
                 \ deline#defHLCombined("DelineHL2", "Normal", "Normal"),
                 \ deline#defHLCombined("DelineHL2SepMini", "","DelineHL2"),
-                \ deline#defHLCombined("DelineHL2Alert", "guifg=#ffbbbb ctermfg=DarkRed", "DelineHL2"),
+                \ deline#defHLCombined("DelineHL2Alert", "guifg=#aa0000 ctermfg=DarkRed", "DelineHL2"),
                 \ deline#defHLBGTrans("DelineHLSep2", "DelineHL2", "DelineHL"),
                 \ deline#defHLBGTrans("DelineHLSep2Inv", "DelineHL", "DelineHL2"),
                 \
