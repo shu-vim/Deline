@@ -394,6 +394,8 @@ function! deline#_init()
 endfunction
 
 function! deline#_initHighlight()
+    let s:config["_hlonce"] = {}
+
     call deline#_highlight("User1", get(s:config, "hl_1", {}))
     "
     call deline#_highlight("User3", get(s:config, "hl_3", {}))
@@ -568,11 +570,9 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-let s:defhlset = {} "except defHLMode
-
 function! deline#defHLInner(hlname, attrs)
-    if get(s:defhlset, a:hlname, "") == ""
-        let s:defhlset[a:hlname] = "*"
+    if get(s:config["_hlonce"], a:hlname, "") == ""
+        let s:config["_hlonce"][a:hlname] = "*"
     else
         return ""
     endif
@@ -595,8 +595,8 @@ endfunction
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 function! deline#defHLInvInner(hlname, basehlname)
-    if get(s:defhlset, a:hlname, "") == ""
-        let s:defhlset[a:hlname] = "*"
+    if get(s:config["_hlonce"], a:hlname, "") == ""
+        let s:config["_hlonce"][a:hlname] = "*"
     else
         return ""
     endif
@@ -621,8 +621,8 @@ endfunction
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 function! deline#defHLCombinedInner(hlname, fghlname, bghlname)
-    if get(s:defhlset, a:hlname, "") == ""
-        let s:defhlset[a:hlname] = "*"
+    if get(s:config["_hlonce"], a:hlname, "") == ""
+        let s:config["_hlonce"][a:hlname] = "*"
     else
         return ""
     endif
@@ -656,11 +656,12 @@ endfunction
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 function! deline#defHLBGTransInner(hlname, lhlname, rhlname)
-    if get(s:defhlset, a:hlname, "") == ""
-        let s:defhlset[a:hlname] = "*"
-    else
-        return ""
-    endif
+    "no!
+    "if get(s:config["_hlonce"], a:hlname, "") == ""
+    "    let s:config["_hlonce"][a:hlname] = "*"
+    "else
+    "    return ""
+    "endif
 
     try
         silent let lhl = deline#_parseHL(a:lhlname)
