@@ -97,16 +97,15 @@ function! deline#sample#simple()
     call deline#_apply()
 endfunction
 
-function! deline#sample#glass()
+function! deline#sample#gradient()
     call Deline([
                 \ deline#defHLCombined("DelineHL", "", "Normal", "StatusLine", "fg/fg+bg3"),
                 \ deline#defHLMode("DelineHLMode_tmp"),
                 \ deline#defHLCombined("DelineHLMode", "mode()", "DelineHLMode_tmp", "DelineHL", "fg/fg+bg3"),
-                \ deline#defHLCombined("DelineHLRight", "", "DelineHL", "DelineHL", ""),
-                \ deline#defHLCombined("DelineHLRight2", "", "DelineHL", "DelineHL", ""),
                 \
                 \ deline#defHLCombined("DelineHLLeft", "mode()", "DelineHL", "DelineHLMode", "fg/fg+bg3"),
-                \ deline#defHLCombined("DelineHLAlert", "", "guifg=#ff0000 ctermfg=Red", "DelineHL", ""),
+                \ deline#defHLCombined("DelineHLLeftAlert", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLLeft", ""),
+                \ deline#defHLCombined("DelineHLAlert", "", "guifg=#aa0000 ctermfg=Red", "DelineHL", ""),
                 \ 
                 \ deline#comment("* MODE *"),
                 \ deline#hl("DelineHLMode"),
@@ -117,12 +116,50 @@ function! deline#sample#glass()
                 \ deline#comment("* filepath/filename *"),
                 \ deline#hl("DelineHLLeft"),
                 \ deline#space(),
+                \ deline#hl("DelineHLLeftAlert"),
                 \ deline#readonly("[RO] ", ''),
+                \ deline#modified('+ ', ''),
                 \ deline#defHLCombined("DelineHLPath_tmp", "mode()", "guifg=#aaaaaa ctermfg=LightGray", "DelineHLLeft", ""),
                 \ deline#defHLAdjFG("DelineHLPath", "mode()", "DelineHLPath_tmp"),
                 \ deline#hl("DelineHLPath"), deline#file(':p:h:t'), "/",
                 \ deline#hl("DelineHLLeft"), deline#file(':p:t'),
                 \ deline#space(),
+                \ deline#hl("DelineHLLeftAlert"), deline#notsaved(2),
+                \
+                \ deline#rightalign(),
+                \
+                \ deline#defHLCombined("DelineHLRight", "mode()", "DelineHLLeft", "Normal", "fg/fg+bg3"),
+                \ deline#defHLCombined("DelineHLRightAlert_tmp", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLRight", ""),
+                \ deline#defHLAdjFG("DelineHLRightAlert", "mode()", "DelineHLRightAlert_tmp"),
+                \ deline#defHLCombined("DelineHLRight2", "mode()", "DelineHLRight", "Normal", "fg/fg+bg3"),
+                \ deline#defHLCombined("DelineHLRight2Alert", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLRight2", ""),
+                \ deline#defHLCombined("DelineHLRight3", "mode()", "DelineHLRight2", "Normal", "fg/fg+bg3"),
+                \ deline#defHLCombined("DelineHLRight4", "mode()", "DelineHLRight3", "Normal", "fg/fg+bg3"),
+                \
+                \ deline#comment("\ deline#fileformat(),"),
+                \ deline#hl("DelineHLRight"),
+                \ deline#space(),
+                \ deline#dynamic#if("&fileformat!='unix'", deline#hl("DelineHLRightAlert"), deline#hl("DelineHLRight")),
+                \ deline#fileformat(),
+                \ deline#space(),
+                \
+                \ deline#comment("\ deline#fileencoding(),"),
+                \ deline#hl("DelineHLRight2"),
+                \ deline#space(),
+                \ deline#dynamic#if("&fileencoding!='utf-8'", deline#hl("DelineHLRight2Alert"), deline#hl("DelineHLRight2")),
+                \ deline#fileencoding(),
+                \ deline#space(),
+                \
+                \ deline#hl("DelineHLRight3"),
+                \ deline#space(),
+                \ deline#filetype(),
+                \ deline#space(),
+                \
+                \ deline#hl("DelineHLRight4"),
+                \ deline#space(),
+                \ deline#line(), ":", deline#columnv(),
+                \ deline#space(),
+                \
                 \ ])
                 "
                 " v-- Display a tail line of a textfile.
