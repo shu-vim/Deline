@@ -27,6 +27,25 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+function! deline#dynamic#system(cmd)
+    let d = {"cmd": a:cmd}
+    function! d.eval() dict
+        try
+            let resp = trim(system(self.cmd))
+            if v:shell_error != 0
+                return ""
+            else
+                return resp
+            endif
+        catch
+            return ""
+        endtry
+    endfunction
+    return d
+endfunction
+
+"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 """if eval({expr}) then {t} else {f}
 """Dynamically returns {t} or {f} by eval({expr}).
 """sort:dynamic
