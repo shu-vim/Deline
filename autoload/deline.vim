@@ -458,6 +458,7 @@ function! deline#_highlight(name, dict)
     let hl = ""
     for k in keys(a:dict)
         if k == "" | continue | endif
+        if a:dict[k] == "" | continue | endif
         let hl = hl . " " . k . "='" . a:dict[k] . "'"
     endfor
     silent execute "highlight " . a:name . " " . hl
@@ -637,6 +638,20 @@ function! deline#defHLInvInner(hlname, key, basehlname)
     endif
 
     silent let hl = deline#_parseHL(a:basehlname)
+    if match(get(hl, 'gui', ''), "reverse") != -1
+        let f = get(hl, 'guifg', '')
+        let b = get(hl, 'guibg', '')
+        if f != "" | let hl['guibg'] = f | endif
+        if b != "" | let hl['guifg'] = b | endif
+        let f = get(hl, 'ctermfg', '')
+        let b = get(hl, 'ctermbg', '')
+        if f != "" | let hl['ctermbg'] = f | endif
+        if b != "" | let hl['ctermfg'] = b | endif
+
+        let hl['gui'] = substitute(get(hl, 'gui', ''), '\v,?reverse,?', '', '')
+        let hl['cterm'] = substitute(get(hl, 'cterm', ''), '\v,?reverse,?', '', '')
+        let hl['term'] = substitute(get(hl, 'term', ''), '\v,?reverse,?', '', '')
+    endif
 
     let guibg = get(hl, "guifg", "")
     let guifg = get(hl, "guibg", "")
@@ -664,6 +679,20 @@ function! deline#defHLAdjFGInner(hlname, key, basehlname)
     endif
 
     silent let hl = deline#_parseHL(a:basehlname)
+    if match(get(hl, 'gui', ''), "reverse") != -1
+        let f = get(hl, 'guifg', '')
+        let b = get(hl, 'guibg', '')
+        if f != "" | let hl['guibg'] = f | endif
+        if b != "" | let hl['guifg'] = b | endif
+        let f = get(hl, 'ctermfg', '')
+        let b = get(hl, 'ctermbg', '')
+        if f != "" | let hl['ctermbg'] = f | endif
+        if b != "" | let hl['ctermfg'] = b | endif
+
+        let hl['gui'] = substitute(get(hl, 'gui', ''), '\v,?reverse,?', '', '')
+        let hl['cterm'] = substitute(get(hl, 'cterm', ''), '\v,?reverse,?', '', '')
+        let hl['term'] = substitute(get(hl, 'term', ''), '\v,?reverse,?', '', '')
+    endif
 
     let guifg = get(hl, "guifg", "")
     let guibg = get(hl, "guibg", "")
@@ -723,13 +752,40 @@ function! deline#defHLCombinedInner(hlname, key, fghlname, bghlname, method)
     else
         silent let fghl = deline#_parseHL(a:fghlname)
     endif
+    if match(get(fghl, 'gui', ''), "reverse") != -1
+        let f = get(fghl, 'guifg', '')
+        let b = get(fghl, 'guibg', '')
+        if f != "" | let fghl['guibg'] = f | endif
+        if b != "" | let fghl['guifg'] = b | endif
+        let f = get(fghl, 'ctermfg', '')
+        let b = get(fghl, 'ctermbg', '')
+        if f != "" | let fghl['ctermbg'] = f | endif
+        if b != "" | let fghl['ctermfg'] = b | endif
+
+        let fghl['gui'] = substitute(get(fghl, 'gui', ''), '\v,?reverse,?', '', '')
+        let fghl['cterm'] = substitute(get(fghl, 'cterm', ''), '\v,?reverse,?', '', '')
+        let fghl['term'] = substitute(get(fghl, 'term', ''), '\v,?reverse,?', '', '')
+    endif
 
     if a:bghlname =~ "="
         silent let bghl = deline#_parseHLAttrs(a:bghlname)
     else
         silent let bghl = deline#_parseHL(a:bghlname)
     endif
-        
+    if match(get(bghl, 'gui', ''), "reverse") != -1
+        let f = get(bghl, 'guifg', '')
+        let b = get(bghl, 'guibg', '')
+        if f != "" | let bghl['guibg'] = f | endif
+        if b != "" | let bghl['guifg'] = b | endif
+        let f = get(bghl, 'ctermfg', '')
+        let b = get(bghl, 'ctermbg', '')
+        if f != "" | let bghl['ctermbg'] = f | endif
+        if b != "" | let bghl['ctermfg'] = b | endif
+
+        let bghl['gui'] = substitute(get(bghl, 'gui', ''), '\v,?reverse,?', '', '')
+        let bghl['cterm'] = substitute(get(bghl, 'cterm', ''), '\v,?reverse,?', '', '')
+        let bghl['term'] = substitute(get(bghl, 'term', ''), '\v,?reverse,?', '', '')
+    endif
 
     let hl = copy(fghl)
 
@@ -791,6 +847,7 @@ function! deline#defHLCombinedInner(hlname, key, fghlname, bghlname, method)
         if ctermbg != "" | let hl["ctermbg"] = ctermbg | endif
     endif
 
+    "echom a:hlname . ' ' . string(hl) . ' ' . string(fghl) . ' ' . string(bghl)
 
     call deline#_highlight(a:hlname, hl)
 
@@ -812,12 +869,40 @@ function! deline#defHLSeparatorInner(hlname, key, lhlname, rhlname)
     catch
         silent let lhl = deline#_parseHL("Normal")
     endtry
+    if match(get(lhl, 'gui', ''), "reverse") != -1
+        let f = get(lhl, 'guifg', '')
+        let b = get(lhl, 'guibg', '')
+        if f != "" | let lhl['guibg'] = f | endif
+        if b != "" | let lhl['guifg'] = b | endif
+        let f = get(lhl, 'ctermfg', '')
+        let b = get(lhl, 'ctermbg', '')
+        if f != "" | let lhl['ctermbg'] = f | endif
+        if b != "" | let lhl['ctermfg'] = b | endif
+
+        let lhl['gui'] = substitute(get(lhl, 'gui', ''), '\v,?reverse,?', '', '')
+        let lhl['cterm'] = substitute(get(lhl, 'cterm', ''), '\v,?reverse,?', '', '')
+        let lhl['term'] = substitute(get(lhl, 'term', ''), '\v,?reverse,?', '', '')
+    endif
 
     try
         silent let rhl = deline#_parseHL(a:rhlname)
     catch
         silent let rhl = deline#_parseHL("Normal")
     endtry
+    if match(get(rhl, 'gui', ''), "reverse") != -1
+        let f = get(rhl, 'guifg', '')
+        let b = get(rhl, 'guibg', '')
+        if f != "" | let rhl['guibg'] = f | endif
+        if b != "" | let rhl['guifg'] = b | endif
+        let f = get(rhl, 'ctermfg', '')
+        let b = get(rhl, 'ctermbg', '')
+        if f != "" | let rhl['ctermbg'] = f | endif
+        if b != "" | let rhl['ctermfg'] = b | endif
+
+        let rhl['gui'] = substitute(get(rhl, 'gui', ''), '\v,?reverse,?', '', '')
+        let rhl['cterm'] = substitute(get(rhl, 'cterm', ''), '\v,?reverse,?', '', '')
+        let rhl['term'] = substitute(get(rhl, 'term', ''), '\v,?reverse,?', '', '')
+    endif
 
     let hl = copy(lhl)
 
