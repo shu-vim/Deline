@@ -673,7 +673,15 @@ function! deline#defHLAdjFGInner(hlname, key, basehlname)
 
     let bghsv = deline#color#hsv(bgrgb[0], bgrgb[1], bgrgb[2])
     let fghsv = deline#color#hsv(fgrgb[0], fgrgb[1], fgrgb[2])
-    if abs(bghsv[2] - fghsv[2]) < 64
+    "echom a:hlname . ' ' . string(fghsv) . ' ' . string(bghsv)
+
+    if abs(bghsv[2] - fghsv[2]) < 128
+        "if bghsv[2] < 128
+        "    let fghsv[2] = bghsv[2] * 2
+        "else
+        "    let fghsv[2] = bghsv[2] / 2
+        "endif
+
         if fghsv[2] < bghsv[2] && fghsv[2] < 64
             let fghsv[2] = 255 - fghsv[2]
         elseif fghsv[2] < bghsv[2] && fghsv[2] >= 64
@@ -683,9 +691,15 @@ function! deline#defHLAdjFGInner(hlname, key, basehlname)
         else
             let fghsv[2] = fghsv[2] + 64
         endif
-        let fgrgb = deline#color#rgb(fghsv[0], fghsv[1], fghsv[2])
-        let guifg = printf("#%02x%02x%02x", float2nr(fgrgb[0]), float2nr(fgrgb[1]), float2nr(fgrgb[2]))
     endif
+
+    if abs(bghsv[1] - fghsv[1]) > 128
+        let fghsv[1] = (fghsv[1] + bghsv[1]) / 2
+    endif
+
+    let fgrgb = deline#color#rgb(fghsv[0], fghsv[1], fghsv[2])
+    "echom '=>'. string(fghsv) . '==' . string(fgrgb)
+    let guifg = printf("#%02x%02x%02x", float2nr(fgrgb[0]), float2nr(fgrgb[1]), float2nr(fgrgb[2]))
 
     if guifg != "" | let hl["guifg"] = guifg | endif
 
