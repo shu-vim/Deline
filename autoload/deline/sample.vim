@@ -208,13 +208,15 @@ endfunction
 function! deline#sample#powerful()
     call deline#_config_set("interval", 60)
     call Deline([
-                \ deline#defHLCombined("DelineHL", "", "StatusLine", "StatusLine", ""),
+                \ deline#defHLCombined("DelineHL", "", "StatusLine", "Normal", "fg/fg+bg1"),
                 \ deline#defHLMode("DelineHLMode_tmp"),
-                \ deline#defHLCombined("DelineHLMode", "mode()", "DelineHL", "DelineHLMode_tmp", "fg/fg+bg9"),
+                \ deline#defHLCombined("DelineHLMode", "mode()", "DelineHL", "DelineHLMode_tmp", "fg/fg+bg7"),
                 \
                 \ deline#defHLCombined("DelineHLLeft", "mode()", "DelineHL", "DelineHLMode", "fg/fg+bg"),
                 \ deline#defHLSeparator("DelineHLLeftSep", "mode()", "DelineHLLeft", "DelineHL"),
-                \ deline#defHLCombined("DelineHLAlert", "", "guifg=#ff0000 ctermfg=Red", "DelineHL", ""),
+                \ deline#defHLCombined("DelineHLAlert", "", "DelineHL", "guibg=#ff0000 ctermbg=Red", "fg/fg+bg"),
+                \ deline#defHLSeparator("DelineHLLeftAlertSep", "mode()", "DelineHLLeft", "DelineHLAlert"),
+                \ deline#defHLSeparator("DelineHLAlertSep", "mode()", "DelineHLAlert", "DelineHL"),
                 \ 
                 \ deline#comment("* MODE *"),
                 \ deline#hl("DelineHLMode"),
@@ -233,43 +235,74 @@ function! deline#sample#powerful()
                 \ deline#space(),
                 \ 
                 \ deline#comment("* filepath/filename *"),
-                \ deline#defHLCombined("DelineHLPath", "mode()", "guifg=#777777 ctermfg=LightGray", "DelineHLLeft", ""),
+                \ deline#defHLCombined("DelineHLPath_tmp", "mode()", "guifg=#777777 ctermfg=LightGray", "DelineHLLeft", ""),
+                \ deline#defHLAdjFG("DelineHLPath", "mode()", "DelineHLPath_tmp"),
                 \ deline#readonly("\ue0a2", ''),
                 \ deline#hl("DelineHLPath"), deline#file(':p:h:t'), "/",
                 \ deline#hl("DelineHLLeft"), deline#file(':p:t'),
                 \ deline#space(),
                 \
+                \ deline#comment("* modified sign and separator *"),
+                \ deline#hl("DelineHLLeftAlertSep"),
+                \ deline#modified("\ue0b0", ''),
+                \ deline#hl("DelineHLAlert"),
+                \ deline#modified(" + ", ''),
+                \ deline#hl("DelineHLAlertSep"),
+                \ deline#modified("\ue0b0", ''),
+                \
                 \ deline#hl("DelineHLLeftSep"),
-                \ "\ue0b0",
+                \ deline#modified('', "\ue0b0"),
                 \ 
                 \ deline#hl("DelineHL"),
                 \ 
                 \ deline#rightalign(),
+                \
+                \ deline#defHLCombined("DelineHLRight4", "mode()", "DelineHLMode", "DelineHL", "fg/fg+bg3"),
+                \ deline#defHLCombined("DelineHLRight3", "mode()", "DelineHLRight4", "DelineHL", "fg/fg+bg1"),
+                \ deline#defHLCombined("DelineHLRight2", "mode()", "DelineHLRight3", "DelineHL", "fg/fg+bg1"),
+                \ deline#defHLCombined("DelineHLRight", "mode()", "DelineHLRight2", "DelineHL", "fg/fg+bg1"),
+                \ deline#defHLCombined("DelineHLRightAlert_tmp", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLRight", ""),
+                \ deline#defHLAdjFG("DelineHLRightAlert", "mode()", "DelineHLRightAlert_tmp"),
+                \ deline#defHLCombined("DelineHLRight2Alert", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLRight2", ""),
+                \ deline#defHLSeparator("DelineHLSepR1", "mode()", "DelineHLRight", "DelineHL"),
+                \ deline#defHLSeparator("DelineHLR1SepR2", "mode()", "DelineHLRight2", "DelineHLRight"),
+                \ deline#defHLSeparator("DelineHLR2SepR3", "mode()", "DelineHLRight3", "DelineHLRight2"),
+                \ deline#defHLSeparator("DelineHLR3SepR4", "mode()", "DelineHLRight4", "DelineHLRight3"),
+                \
+                \ deline#hl("DelineHLSepR1"),
+                \ "\ue0b2",
                 \ 
-                \ deline#comment("* fileformat(dos/unix) *"),
                 \ deline#comment("\ deline#fileformat(),"),
-                \ deline#dynamic#if("&fileformat!='unix'", deline#hl("DelineHLAlert"), deline#hl("DelineHL")),
-                \ deline#fileformat(),
-                \
-                \ "\ue0b3",
-                \
-                \ deline#comment("* fileencoding *"),
+                \ deline#hl("DelineHLRight"),
                 \ deline#space(),
-                \ deline#dynamic#if("&fileencoding!='utf-8'", deline#hl("DelineHLAlert"), deline#hl("DelineHL")),
+                \ deline#dynamic#if("&fileformat!='unix'", deline#hl("DelineHLRightAlert"), deline#hl("DelineHLRight")),
+                \ deline#fileformat(),
+                \ deline#space(),
+                \
+                \ deline#hl("DelineHLR1SepR2"),
+                \ "\ue0b2",
+                \
+                \ deline#comment("\ deline#fileencoding(),"),
+                \ deline#hl("DelineHLRight2"),
+                \ deline#space(),
+                \ deline#dynamic#if("&fileencoding!='utf-8'", deline#hl("DelineHLRight2Alert"), deline#hl("DelineHLRight2")),
                 \ deline#fileencoding(),
+                \ deline#space(),
                 \
-                \ "\ue0b3",
+                \ deline#hl("DelineHLR2SepR3"),
+                \ "\ue0b2",
                 \
-                \ deline#comment("* filetype *"),
+                \ deline#hl("DelineHLRight3"),
                 \ deline#space(),
                 \ deline#filetype(),
+                \ deline#space(),
                 \
-                \ "\ue0b3",
-                \ 
-                \ deline#comment("* position *"),
+                \ deline#hl("DelineHLR3SepR4"),
+                \ "\ue0b2",
+                \
+                \ deline#hl("DelineHLRight4"),
                 \ deline#space(),
                 \ deline#line(), ":", deline#columnv(),
-                \
                 \ deline#space(),
                 \ ])
 
