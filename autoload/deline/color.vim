@@ -42,7 +42,6 @@ function! deline#color#hsv(r, g, b)
     if rgbmax == rgbmin
         let h = 0
     elseif r == rgbmax
-        echom 'r'
         let h = 60 * ((g - b) / (rgbmax - rgbmin))
     elseif g == rgbmax
         let h = 60 * ((b - r) / (rgbmax - rgbmin)) + 120
@@ -72,7 +71,7 @@ function! deline#color#rgb(h, s, v)
     let v = a:v
 
     let rgbmax = v
-    let rgbmin = rgbmax - ((s / 255) * rgbmax)
+    let rgbmin = rgbmax - (s * rgbmax / 255)
 
     if h <= 60
         let r = rgbmax
