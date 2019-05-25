@@ -321,6 +321,9 @@ endfunction
 
 function! deline#sample#powerful_branch_cb(ch, msg)
     let msg = trim(a:msg)
+    if match(msg, "* ") == 0
+        let msg = msg[2:]
+    endif
     call deline#_config_set("sample/powerful/branch", msg)
 endfunction
 
