@@ -65,9 +65,9 @@ endfunction
 
 if g:Deline_DefaultDefinitions 
     if g:Deline_Powerful
-        call deline#sample#powerful()
+        call deline#example#powerful()
     else
-        call deline#sample#simple()
+        call deline#example#simple()
     endif
 endif
 

@@ -1,7 +1,7 @@
 """ defines a simple statusline
 """
 """ sort:sample1
-function! deline#sample#simple()
+function! deline#example#simple()
     "
     " hi User1 ... textual part (config key "hl_1")
     " hi User2 ... mode (CHANGED IN deline#modeHL,
@@ -104,7 +104,7 @@ endfunction
 """
 """ It causes error in some colorschemes that are without guixxx.
 """ sort:sample2
-function! deline#sample#gradient()
+function! deline#example#gradient()
     call Deline([
                 \ deline#defHLCombined("DelineHL", "", "Normal", "StatusLine", "fg/fg+bg3"),
                 \ deline#defHLMode("DelineHLMode_tmp"),
@@ -177,7 +177,7 @@ endfunction
 """ It requires powerline font that contains (\ue0b0) (\ue0b1) (\ue0b2)
 """ (\ue0b3) (\ue0a2)
 """ sort:sample3
-function! deline#sample#powerful()
+function! deline#example#powerful()
     call deline#_config_set("interval", 60)
     call Deline([
                 \ deline#defHLCombined("DelineHL", "", "StatusLine", "Normal", "fg/fg+bg1"),
@@ -203,8 +203,8 @@ function! deline#sample#powerful()
                 \ 
                 \ deline#comment("* branch *"),
                 \ deline#hl("DelineHLLeft"),
-                \ deline#sample#powerful_branch(),
-                \ "%{deline#sample#powerful_branchInner()}",
+                \ deline#example#powerful_branch(),
+                \ "%{deline#example#powerful_branchInner()}",
                 \ deline#space(),
                 \ 
                 \ deline#comment("* filepath/filename *"),
@@ -282,7 +282,7 @@ function! deline#sample#powerful()
     call deline#_apply()
 endfunction
 
-function! deline#sample#powerful_branchInner()
+function! deline#example#powerful_branchInner()
     let b = deline#_config_get("sample/powerful/branch", "")
     if b != ""
         return "\ue0a0" . b . " \ue0b1"
@@ -291,7 +291,7 @@ function! deline#sample#powerful_branchInner()
     endif
 endfunction
 
-function! deline#sample#powerful_branch_cb(ch, msg)
+function! deline#example#powerful_branch_cb(ch, msg)
     let msg = trim(a:msg)
     if match(msg, "* ") == 0
         let msg = msg[2:]
@@ -299,11 +299,11 @@ function! deline#sample#powerful_branch_cb(ch, msg)
     call deline#_config_set("sample/powerful/branch", msg)
 endfunction
 
-function! deline#sample#powerful_branch()
+function! deline#example#powerful_branch()
     let d = {}
     function! d.eval() dict
-        call job_start("git branch", {"out_cb": "deline#sample#powerful_branch_cb"})
-        call job_start("hg branch", {"out_cb": "deline#sample#powerful_branch_cb"})
+        call job_start("git branch", {"out_cb": "deline#example#powerful_branch_cb"})
+        call job_start("hg branch", {"out_cb": "deline#example#powerful_branch_cb"})
         return ""
     endfunction
     "    try
@@ -328,7 +328,7 @@ endfunction
 """ expanded area in large size window
 """
 """ sort:sample4
-function! deline#sample#expandable()
+function! deline#example#expandable()
         call Deline([
             \ deline#comment('deline#defHL("DelineHL", "", "guifg=#cccccc guibg=#333333 ctermfg=White ctermbg=DarkGray"),'),
             \ deline#defHLCombined("DelineHL", "", "StatusLine", "StatusLine", ""),
