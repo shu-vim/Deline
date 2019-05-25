@@ -1,6 +1,4 @@
                                                               *deline-example*
-deline examples
-
 
 ==============================================================================
 CONTENTS                                             *deline-example-contents*
@@ -14,7 +12,19 @@ EXAMPLES                                             *deline-example-examples*
 
 Deline provides some statusline definitions in form of function.
 
+Statusline is changed by calling deline#example#xxx().
+You may copy these functions and modify as you like.
 
+Setting Example: >
+        " diable Deline's defaults.
+        let g:Deline_DefaultDefinitions = 0
+        let g:Deline_Powerful = 0
+
+        " call an example function.
+        augroup Deline_mysetting 
+            autocmd VimEnter * call deline#example#gradient()
+        augroup END
+<
 
 ==============================================================================
 FUNCTIONS                                           *deline-example-functions*
