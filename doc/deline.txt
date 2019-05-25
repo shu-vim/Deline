@@ -1,4 +1,10 @@
-*Deline*    A lightweight statusline plugin with construction functionality. 
+*deline*    A lightweight statusline plugin with construction functionality. 
+
+==============================================================================
+CONTENTS                                                     *deline-contents*
+
+  Variables .................................... |deline-variables|
+  Functions .................................... |deline-functions|
 
 
 ==============================================================================
@@ -6,7 +12,13 @@ VARIABLES                                                   *deline-variables*
 
                                                  *g:Deline_DefaultDefinitions*
 g:Deline_DefaultDefinitions = 1
-                if non-zero, define statusline by deline's settings.
+                If non-zero, define statusline by deline's settings.
+                
+
+                                                           *g:Deline_Powerful*
+g:Deline_Powerful = 0
+                If non-zero, define statusline by deline's powerful settings.
+                It requires a powerline font. like 
 
 
 ==============================================================================
@@ -25,6 +37,17 @@ deline#column()                 %c
 deline#columnv()                %v
 deline#columnvoptional()        %V
 deline#comment({text})          comment (simply ignored as statusline)
+deline#defHL({hlname}, {keyexpr}, {attrs})
+                                 define highlight {hlname} with "attr=value attr=value ..." format string {attrs}
+deline#defHLAdjFG({hlname}, {keyexpr}, {basehlname})
+                                 define highlight {hlname} from {basehlname} with distinctive fg color.
+deline#defHLCombined({hlname}, {keyexpr}, {fghlname}, {bghlname}, {method})
+                                 define combined highlight {hlname} from fg:{fghlname} and bg:{bghlname}
+deline#defHLInv({hlname}, {keyexpr}, {basehlname})
+                                 define highlight {hlname} from inverted {basehlname}
+deline#defHLMode({hlname})      re-define highlight as {hlname}
+deline#defHLSeparator({hlname}, {keyexpr}, {lhlname}, {rhlname})
+                                 define combined highlight {hlname} from fg:bg of {lhlname} and bg:bg of {rhlname}
 deline#expr({expr})             evaluated vim expr
 deline#file({fmt})              file name
 deline#fileencoding()           &fileencoding
@@ -41,7 +64,7 @@ deline#keymap()                 %k
 deline#line()                   %l
 deline#linepercent()            %p
 deline#mode()                   the name of mode 'NORMAL', ...
-deline#modeHL({hlname})         re-define highlight as {hlname}
+deline#modeHL({hlname})         DEPLICATED. use |deline#defHLMode|
 deline#modified({t}, {f})       returns {t} if &modified, else {f}
 deline#notsaved({min_ago})      displays delta time from last save. 
 deline#numlines()               %L
@@ -105,6 +128,65 @@ DelineConfig({config})
                 interval	throttling interval of re-evaluating of
                 		dynamic functions in second.
                 		default: 0.5
+
+                                                              *deline#defHL()*
+deline#defHL({hlname}, {keyexpr}, {attrs})
+                 See |highlight-gui| for {attrs}.
+                 
+                 {keyexpr} is Vim script  expression or empty string.
+                 {hlname} is not redifined IF {keyexpr} is previously passed value.
+                 {keyexpr} is sometimes takes value of 'mode()' to change its highlight
+                 definition by mode.
+                 If {keyexpr} is '', {hlname} is not redifined.
+                
+                Example1: >
+                    call Deline([
+                          :
+                        \ deline#defHL('MY_1' '', ''uifg=#ffffff guibg=#000000'',
+                          :
+                        \ ])
+<
+                 In Example1, MY_1 is defined ONCE with {keyexpr} ''.
+                 
+                Example2: >
+                    call Deline([
+                          :
+                        \ deline#comment('MY_2 varies by mode'),
+                        \ deline#defHLMode('MY_2'),
+                          :
+                        \ deline#defHLCombined('MY_3', '', 'StatusLine', 'MY_2'),
+                        \ deline#defHLCombined('MY_4', 'mode()', 'StatusLine', 'MY_2'),
+                          :
+                        \ ])
+<
+                 Now, MY_3 and MY_4 each is a combined highlight. They have same fg and
+                 bg.
+                 MY_3 is static. Because its {keyexpr} (2nd argument) is '', and '' is
+                 statically ''.
+                 MY_4 is dynamic. Because its {keyexpr} is 'mode()', and it changes in
+                 modes of Vim operations. You can use any Vim script expression, like 
+                 '&modified'.
+
+                                                         *deline#defHLAdjFG()*
+deline#defHLAdjFG({hlname}, {keyexpr}, {basehlname})
+                 Sometimes, combining highlights results in vague foreground color.
+                 Then call this function to define another more distinctive highlight.
+                
+                 The result may not be satisfiable for you, sorry.
+
+                                                      *deline#defHLCombined()*
+deline#defHLCombined({hlname}, {keyexpr}, {fghlname}, {bghlname}, {method})
+                 {fghlname} and {bghlname} can be "attr=value attr=value ..." format string.
+                
+                 See |deline#defHL| for {keyexpr}.
+                
+                 {method} takes one of bellow:                  *deline-combination-method*
+                   ''  or  'fg/bg'   {fghlname} overwritten with xxxbg of {bghlname}
+                   'fg/fg+bg'        xxxbg is half of {fghlname} and half of {bghlname}
+                   'fg/fg+bg9'       xxxbg is 1/10 of {fghlname} and 9/10 of {bghlname}
+                   'fg/fg+bg7'       xxxbg is 3/10 of {fghlname} and 7/10 of {bghlname}
+                   'fg/fg+bg3'       xxxbg is 7/10 of {fghlname} and 3/10 of {bghlname}
+                   'fg/fg+bg1'       xxxbg is 9/10 of {fghlname} and 1/10 of {bghlname}
 
                                                            *deline#notsaved()*
 deline#notsaved({min_ago})
@@ -206,4 +288,5 @@ deline#dynamic#periodic({period})
                     (3) This non-dynamic expr is evaluated once before call
                         Deline().
 
- vim: set noet ft=help sts=8 sw=8 ts=8 tw=78:
+
+ vim: set et ft=help sts=8 sw=8 ts=8 tw=78:

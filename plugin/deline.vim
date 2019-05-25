@@ -1,10 +1,11 @@
 if !exists("g:Deline_DefaultDefinitions")
-    """if non-zero, define statusline by deline's settings.
+    """If non-zero, define statusline by deline's settings.
     let g:Deline_DefaultDefinitions = 1
 endif
 
 if !exists("g:Deline_Powerful")
-    """if non-zero, define statusline by deline's powerful settings.
+    """If non-zero, define statusline by deline's powerful settings.
+    """It requires a powerline font. like 
     let g:Deline_Powerful = 0
 endif
 

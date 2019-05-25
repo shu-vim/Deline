@@ -1,3 +1,6 @@
+""" defines a simple statusline
+"""
+""" sort:sample1
 function! deline#sample#simple()
     "
     " hi User1 ... textual part (config key "hl_1")
@@ -97,6 +100,10 @@ function! deline#sample#simple()
     call deline#_apply()
 endfunction
 
+""" gradient color of mode
+"""
+""" It causes error in some colorschemes that are without guixxx.
+""" sort:sample2
 function! deline#sample#gradient()
     call Deline([
                 \ deline#defHLCombined("DelineHL", "", "Normal", "StatusLine", "fg/fg+bg3"),
@@ -161,50 +168,15 @@ function! deline#sample#gradient()
                 \ deline#space(),
                 \
                 \ ])
-                "
-                " v-- Display a tail line of a textfile.
-                " \ deline#hl(3), "hoge.txt: ", deline#filetail('c:/temp/hoge.txt', 5000),
-                "
-                " v-- Display searching string if width > 80.
-                " \ deline#dynamic#if("winwidth(0) > 80 && !v:hlsearch", 
-                "     \ "/" . deline#expr("getreg('/')") .
-                "     \ deline#space() . deline#hl(3) . deline#bar() . deline#hl(1) . deline#space(),
-                "     \ ""),
-                "
-                " dynamic#xxx is called on eval-time of statusline
-                "
-                " v-- This changes highlight according to fileencoding. 
-                "     Statusline notation can't do this. (workaround exists, but noisy)
-                " \ deline#dynamic#if("&fileencoding!='utf-8'", deline#hl(4), deline#hl(1)),
-                "
-                " v-- dynamic#periodic turns on timer (ms).
-                "     This causes dynanmic#xxx evaluated periodicaly.
-                " \ deline#dynamic#periodic(1000),
-                " \ deline#dynamic#expr("strftime('%T')"),
-                " ^-- dynamic#expr does NOT emit "a RESULT of strftime('%T')" immediately,
-                "     but emits "this should return strftime('%T') on
-                "     evaluation time".
-                "
-                " v-- animation
-                " \ deline#dynamic#cyclic(['-', '\', '|', '/', '-', '\', '|', '/', '-', '-', '+', '*', '+']),
-                " \ deline#dynamic#cyclic(['⣾','⣽','⣻','⢿','⡿','⡿','⣟','⣯','⣷']),
-
-    " call DelineConfig({
-    "             \ "no_name": "名無しさん@Vim",
-    "             \ })
-
-    " An example usage of DelineConfig
-    " call DelineConfig({
-    "             \ "mode_c": {
-    "             \ "": " COMMAND ",
-    "             \ "guifg": "#000000",
-    "             \ "guibg": "#ffffff",
-    "             \ },
-    "             \ })
 
     call deline#_apply()
 endfunction
 
+""" powerline like definition
+"""
+""" It requires powerline font that contains (\ue0b0) (\ue0b1) (\ue0b2)
+""" (\ue0b3) (\ue0a2)
+""" sort:sample3
 function! deline#sample#powerful()
     call deline#_config_set("interval", 60)
     call Deline([
@@ -353,7 +325,10 @@ function! deline#sample#powerful_branch()
     return d
 endfunction
 
-function! deline#sample#distinctive()
+""" expanded area in large size window
+"""
+""" sort:sample4
+function! deline#sample#expandable()
         call Deline([
             \ deline#comment('deline#defHL("DelineHL", "", "guifg=#cccccc guibg=#333333 ctermfg=White ctermbg=DarkGray"),'),
             \ deline#defHLCombined("DelineHL", "", "StatusLine", "StatusLine", ""),

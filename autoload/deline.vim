@@ -172,7 +172,7 @@ function! deline#mode()
     return "%{deline#modeInner()}"
 endfunction
 
-"""DEPLICATED. re-define highlight as {hlname}
+"""DEPLICATED. use |deline#defHLMode|
 function! deline#modeHL(hlname)
     return deline#defHLMode(a:hlname)
 endfunction
@@ -188,6 +188,42 @@ function! deline#defHLMode(hlname)
 endfunction
 
 """ define highlight {hlname} with "attr=value attr=value ..." format string {attrs}
+"""
+""" See |highlight-gui| for {attrs}.
+""" 
+""" {keyexpr} is Vim script  expression or empty string.
+""" {hlname} is not redifined IF {keyexpr} is previously passed value.
+""" {keyexpr} is sometimes takes value of 'mode()' to change its highlight
+""" definition by mode.
+""" If {keyexpr} is '', {hlname} is not redifined.
+"""
+"""Example1: >
+"""    call Deline([
+"""          :
+"""        \ deline#defHL('MY_1' '', ''uifg=#ffffff guibg=#000000'',
+"""          :
+"""        \ ])
+"""<
+""" In Example1, MY_1 is defined ONCE with {keyexpr} ''.
+""" 
+"""Example2: >
+"""    call Deline([
+"""          :
+"""        \ deline#comment('MY_2 varies by mode'),
+"""        \ deline#defHLMode('MY_2'),
+"""          :
+"""        \ deline#defHLCombined('MY_3', '', 'StatusLine', 'MY_2'),
+"""        \ deline#defHLCombined('MY_4', 'mode()', 'StatusLine', 'MY_2'),
+"""          :
+"""        \ ])
+"""<
+""" Now, MY_3 and MY_4 each is a combined highlight. They have same fg and
+""" bg.
+""" MY_3 is static. Because its {keyexpr} (2nd argument) is '', and '' is
+""" statically ''.
+""" MY_4 is dynamic. Because its {keyexpr} is 'mode()', and it changes in
+""" modes of Vim operations. You can use any Vim script expression, like 
+""" '&modified'.
 function! deline#defHL(hlname, keyexpr, attrs)
     let keyexpr = a:keyexpr
     if keyexpr == "" 
@@ -207,6 +243,12 @@ function! deline#defHLInv(hlname, keyexpr, basehlname)
     return "%{deline#defHLInvInner('" . a:hlname . "', " . keyexpr . ", '" . a:basehlname . "')}"
 endfunction
 
+""" define highlight {hlname} from {basehlname} with distinctive fg color.
+"""
+""" Sometimes, combining highlights results in vague foreground color.
+""" Then call this function to define another more distinctive highlight.
+"""
+""" The result may not be satisfiable for you, sorry.
 function! deline#defHLAdjFG(hlname, keyexpr, basehlname)
     let keyexpr = a:keyexpr
     if keyexpr == "" 
@@ -219,6 +261,16 @@ endfunction
 """ define combined highlight {hlname} from fg:{fghlname} and bg:{bghlname}
 """
 """ {fghlname} and {bghlname} can be "attr=value attr=value ..." format string.
+"""
+""" See |deline#defHL| for {keyexpr}.
+"""
+""" {method} takes one of bellow:                  *deline-combination-method*
+"""   ''  or  'fg/bg'   {fghlname} overwritten with xxxbg of {bghlname}
+"""   'fg/fg+bg'        xxxbg is half of {fghlname} and half of {bghlname}
+"""   'fg/fg+bg9'       xxxbg is 1/10 of {fghlname} and 9/10 of {bghlname}
+"""   'fg/fg+bg7'       xxxbg is 3/10 of {fghlname} and 7/10 of {bghlname}
+"""   'fg/fg+bg3'       xxxbg is 7/10 of {fghlname} and 3/10 of {bghlname}
+"""   'fg/fg+bg1'       xxxbg is 9/10 of {fghlname} and 1/10 of {bghlname}
 function! deline#defHLCombined(hlname, keyexpr, fghlname, bghlname, method)
     let keyexpr = a:keyexpr
     if keyexpr == "" 
