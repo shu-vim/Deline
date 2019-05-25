@@ -3,8 +3,8 @@
 ==============================================================================
 CONTENTS                                             *deline-example-contents*
 
-  Examples .................................... |deline-example-examples|
-  Functions ................................... |deline-example-functions|
+  Examples ..................................... |deline-example-examples|
+  Functions .................................... |deline-example-functions|
 
 
 ==============================================================================
