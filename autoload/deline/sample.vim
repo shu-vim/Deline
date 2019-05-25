@@ -232,6 +232,7 @@ function! deline#sample#powerful()
                 \ deline#comment("* branch *"),
                 \ deline#hl("DelineHLLeft"),
                 \ deline#sample#powerful_branch(),
+                \ "%{deline#sample#powerful_branchInner()}",
                 \ deline#space(),
                 \ 
                 \ deline#comment("* filepath/filename *"),
@@ -309,26 +310,43 @@ function! deline#sample#powerful()
     call deline#_apply()
 endfunction
 
+function! deline#sample#powerful_branchInner()
+    let b = deline#_config_get("sample/powerful/branch", "")
+    if b != ""
+        return "\ue0a0" . b . " \ue0b1"
+    else
+        return ""
+    endif
+endfunction
+
+function! deline#sample#powerful_branch_cb(ch, msg)
+    let msg = trim(a:msg)
+    call deline#_config_set("sample/powerful/branch", msg)
+endfunction
+
 function! deline#sample#powerful_branch()
     let d = {}
     function! d.eval() dict
-        try
-            let resp = trim(system("git branch"))
-            if v:shell_error == 0
-                let resp = resp[2:]
-            else
-                let resp = trim(system("hg branch"))
-                if v:shell_error != 0
-                    return ""
-                endif
-            endif
-            if resp != ""
-                return "\ue0a0" . resp . " \ue0b1"
-            endif
-        catch
-            return ""
-        endtry
+        call job_start("git branch", {"out_cb": "deline#sample#powerful_branch_cb"})
+        call job_start("hg branch", {"out_cb": "deline#sample#powerful_branch_cb"})
+        return ""
     endfunction
+    "    try
+    "        let resp = trim(system("git branch"))
+    "        if v:shell_error == 0
+    "            let resp = resp[2:]
+    "        else
+    "            let resp = trim(system("hg branch"))
+    "            if v:shell_error != 0
+    "                return ""
+    "            endif
+    "        endif
+    "        if resp != ""
+    "            return "\ue0a0" . resp . " \ue0b1"
+    "        endif
+    "    catch
+    "        return ""
+    "    endtry
     return d
 endfunction
 
