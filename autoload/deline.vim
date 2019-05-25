@@ -207,13 +207,13 @@ function! deline#defHLInv(hlname, keyexpr, basehlname)
     return "%{deline#defHLInvInner('" . a:hlname . "', " . keyexpr . ", '" . a:basehlname . "')}"
 endfunction
 
-function! deline#defHLAdjFG(hlname, keyexpr)
+function! deline#defHLAdjFG(hlname, keyexpr, basehlname)
     let keyexpr = a:keyexpr
     if keyexpr == "" 
         let keyexpr = "'*'"
     endif
 
-    return "%{deline#defHLAdjFGInner('" . a:hlname . "', " . keyexpr . ")}"
+    return "%{deline#defHLAdjFGInner('" . a:hlname . "', " . keyexpr . ", '" . a:basehlname . "')}"
 endfunction
 
 """ define combined highlight {hlname} from fg:{fghlname} and bg:{bghlname}
@@ -655,7 +655,7 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-function! deline#defHLAdjFGInner(hlname, key)
+function! deline#defHLAdjFGInner(hlname, key, basehlname)
     let oncekey = get(s:config["_hlonce"], a:hlname, "")
     if oncekey == "" || oncekey != a:key
         let s:config["_hlonce"][a:hlname] = a:key
@@ -663,7 +663,7 @@ function! deline#defHLAdjFGInner(hlname, key)
         return ""
     endif
 
-    silent let hl = deline#_parseHL(a:hlname)
+    silent let hl = deline#_parseHL(a:basehlname)
 
     let guifg = get(hl, "guifg", "")
     let guibg = get(hl, "guibg", "")
