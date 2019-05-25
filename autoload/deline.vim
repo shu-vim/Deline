@@ -1,4 +1,3 @@
-
 """change highlight {hlname}.
 function! deline#hl(hlname)
     if type(a:hlname) == 0
@@ -184,29 +183,64 @@ function! deline#defHLMode(hlname)
     if hlname == ""
         let hlname = "User2"
     endif
+
     return "%{deline#defHLModeInner('" . hlname . "')}"
 endfunction
 
 """ define highlight {hlname} with "attr=value attr=value ..." format string {attrs}
-function! deline#defHL(hlname, attrs)
-    return "%{deline#defHLInner('" . a:hlname . "', '" . a:attrs . "')}"
+function! deline#defHL(hlname, keyexpr, attrs)
+    let keyexpr = a:keyexpr
+    if keyexpr == "" 
+        let keyexpr = "'*'"
+    endif
+
+    return "%{deline#defHLInner('" . a:hlname . "', " . keyexpr . ", '" . a:attrs . "')}"
 endfunction
 
 """ define highlight {hlname} from inverted {basehlname}
-function! deline#defHLInv(hlname, basehlname)
-    return "%{deline#defHLInvInner('" . a:hlname . "', '" . a:basehlname . "')}"
+function! deline#defHLInv(hlname, keyexpr, basehlname)
+    let keyexpr = a:keyexpr
+    if keyexpr == "" 
+        let keyexpr = "'*'"
+    endif
+
+    return "%{deline#defHLInvInner('" . a:hlname . "', " . keyexpr . ", '" . a:basehlname . "')}"
+endfunction
+
+function! deline#defHLAdjFG(hlname, keyexpr)
+    let keyexpr = a:keyexpr
+    if keyexpr == "" 
+        let keyexpr = "'*'"
+    endif
+
+    return "%{deline#defHLAdjFGInner('" . a:hlname . "', " . keyexpr . ")}"
 endfunction
 
 """ define combined highlight {hlname} from fg:{fghlname} and bg:{bghlname}
 """
 """ {fghlname} and {bghlname} can be "attr=value attr=value ..." format string.
-function! deline#defHLCombined(hlname, fghlname, bghlname)
-    return "%{deline#defHLCombinedInner('" . a:hlname . "', '" . a:fghlname . "', '" . a:bghlname . "')}"
+function! deline#defHLCombined(hlname, keyexpr, fghlname, bghlname, method)
+    let keyexpr = a:keyexpr
+    if keyexpr == "" 
+        let keyexpr = "'*'"
+    endif
+
+    let method = a:method
+    if method == ''
+        let method = 'fg/bg'
+    endif
+
+    return "%{deline#defHLCombinedInner('" . a:hlname . "', " . keyexpr . ", '" . a:fghlname . "', '" . a:bghlname . "', '" . method . "')}"
 endfunction
 
 """ define combined highlight {hlname} from fg:bg of {lhlname} and bg:bg of {rhlname}
-function! deline#defHLBGTrans(hlname, lhlname, rhlname)
-    return "%{deline#defHLBGTransInner('" . a:hlname . "', '" . a:lhlname . "', '" . a:rhlname . "')}"
+function! deline#defHLSeparator(hlname, keyexpr, lhlname, rhlname)
+    let keyexpr = a:keyexpr
+    if keyexpr == "" 
+        let keyexpr = "'*'"
+    endif
+
+    return "%{deline#defHLSeparatorInner('" . a:hlname . "', " . keyexpr . ", '" . a:lhlname . "', '" . a:rhlname . "')}"
 endfunction
 
 """displays delta time from last save. 
@@ -394,7 +428,8 @@ function! deline#_init()
 endfunction
 
 function! deline#_initHighlight()
-    let s:config["_hlonce"] = {}
+    let s:config["_hlonce"] = {} " hlname => key
+    let s:last_mode = '0'
 
     call deline#_highlight("User1", get(s:config, "hl_1", {}))
     "
@@ -517,8 +552,6 @@ function! deline#modeInner()
     endif
 endfunction
 
-
-let s:last_mode = '0'
 function! deline#defHLModeInner(hlname)
     let mode = mode()
 
@@ -570,9 +603,10 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-function! deline#defHLInner(hlname, attrs)
-    if get(s:config["_hlonce"], a:hlname, "") == ""
-        let s:config["_hlonce"][a:hlname] = "*"
+function! deline#defHLInner(hlname, key, attrs)
+    let oncekey = get(s:config["_hlonce"], a:hlname, "")
+    if oncekey == "" || oncekey != a:key
+        let s:config["_hlonce"][a:hlname] = a:key
     else
         return ""
     endif
@@ -594,9 +628,10 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-function! deline#defHLInvInner(hlname, basehlname)
-    if get(s:config["_hlonce"], a:hlname, "") == ""
-        let s:config["_hlonce"][a:hlname] = "*"
+function! deline#defHLInvInner(hlname, key, basehlname)
+    let oncekey = get(s:config["_hlonce"], a:hlname, "")
+    if oncekey == "" || oncekey != a:key
+        let s:config["_hlonce"][a:hlname] = a:key
     else
         return ""
     endif
@@ -620,9 +655,51 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-function! deline#defHLCombinedInner(hlname, fghlname, bghlname)
-    if get(s:config["_hlonce"], a:hlname, "") == ""
-        let s:config["_hlonce"][a:hlname] = "*"
+function! deline#defHLAdjFGInner(hlname, key)
+    let oncekey = get(s:config["_hlonce"], a:hlname, "")
+    if oncekey == "" || oncekey != a:key
+        let s:config["_hlonce"][a:hlname] = a:key
+    else
+        return ""
+    endif
+
+    silent let hl = deline#_parseHL(a:hlname)
+
+    let guifg = get(hl, "guifg", "")
+    let guibg = get(hl, "guibg", "")
+
+    let bgrgb = deline#color#attr_to_rgb(guibg)
+    let fgrgb = deline#color#attr_to_rgb(guifg)
+
+    let bghsv = deline#color#hsv(bgrgb[0], bgrgb[1], bgrgb[2])
+    let fghsv = deline#color#hsv(fgrgb[0], fgrgb[1], fgrgb[2])
+    if abs(bghsv[2] - fghsv[2]) < 64
+        if fghsv[2] < bghsv[2] && fghsv[2] < 64
+            let fghsv[2] = 255 - fghsv[2]
+        elseif fghsv[2] < bghsv[2] && fghsv[2] >= 64
+            let fghsv[2] = fghsv[2] - 64
+        elseif bghsv[2] <= fghsv[2] && (255-64) < fghsv[2]
+            let fghsv[2] = 255 - fghsv[2]
+        else
+            let fghsv[2] = fghsv[2] + 64
+        endif
+        let fgrgb = deline#color#rgb(fghsv[0], fghsv[1], fghsv[2])
+        let guifg = printf("#%02x%02x%02x", float2nr(fgrgb[0]), float2nr(fgrgb[1]), float2nr(fgrgb[2]))
+    endif
+
+    if guifg != "" | let hl["guifg"] = guifg | endif
+
+    call deline#_highlight(a:hlname, hl)
+
+    return ""
+endfunction
+
+"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+function! deline#defHLCombinedInner(hlname, key, fghlname, bghlname, method)
+    let oncekey = get(s:config["_hlonce"], a:hlname, "")
+    if oncekey == "" || oncekey != a:key
+        let s:config["_hlonce"][a:hlname] = a:key
     else
         return ""
     endif
@@ -642,11 +719,64 @@ function! deline#defHLCombinedInner(hlname, fghlname, bghlname)
 
     let hl = copy(fghl)
 
-    let guibg = get(bghl, "guibg", "")
-    let ctermbg = get(bghl, "ctermbg", "")
+    if a:method == "fg/bg"
+        let guibg = get(bghl, "guibg", "")
+        let ctermbg = get(bghl, "ctermbg", "")
 
-    if guibg != "" | let hl["guibg"] = guibg | endif
-    if ctermbg != "" | let hl["ctermbg"] = ctermbg | endif
+        if guibg != "" | let hl["guibg"] = guibg | endif
+        if ctermbg != "" | let hl["ctermbg"] = ctermbg | endif
+
+    elseif a:method == "fg/fg+bg"
+        let guibg = get(bghl, "guibg", "")
+        let ctermbg = get(bghl, "ctermbg", "")
+
+        if guibg != "" 
+            let rgb = deline#color#add(hl["guibg"], guibg, 0.5)
+            let hl["guibg"] = printf("#%02x%02x%02x", rgb[0], rgb[1], rgb[2])
+        endif
+        if ctermbg != "" | let hl["ctermbg"] = ctermbg | endif
+
+    elseif a:method == "fg/fg+bg9"
+        let guibg = get(bghl, "guibg", "")
+        let ctermbg = get(bghl, "ctermbg", "")
+
+        if guibg != "" 
+            let rgb = deline#color#add(hl["guibg"], guibg, 0.9)
+            let hl["guibg"] = printf("#%02x%02x%02x", rgb[0], rgb[1], rgb[2])
+        endif
+        if ctermbg != "" | let hl["ctermbg"] = ctermbg | endif
+
+    elseif a:method == "fg/fg+bg7"
+        let guibg = get(bghl, "guibg", "")
+        let ctermbg = get(bghl, "ctermbg", "")
+
+        if guibg != "" 
+            let rgb = deline#color#add(hl["guibg"], guibg, 0.7)
+            let hl["guibg"] = printf("#%02x%02x%02x", rgb[0], rgb[1], rgb[2])
+        endif
+        if ctermbg != "" | let hl["ctermbg"] = ctermbg | endif
+
+    elseif a:method == "fg/fg+bg3"
+        let guibg = get(bghl, "guibg", "")
+        let ctermbg = get(bghl, "ctermbg", "")
+
+        if guibg != "" 
+            let rgb = deline#color#add(hl["guibg"], guibg, 0.3)
+            let hl["guibg"] = printf("#%02x%02x%02x", rgb[0], rgb[1], rgb[2])
+        endif
+        if ctermbg != "" | let hl["ctermbg"] = ctermbg | endif
+
+    elseif a:method == "fg/fg+bg1"
+        let guibg = get(bghl, "guibg", "")
+        let ctermbg = get(bghl, "ctermbg", "")
+
+        if guibg != "" 
+            let rgb = deline#color#add(hl["guibg"], guibg, 0.1)
+            let hl["guibg"] = printf("#%02x%02x%02x", rgb[0], rgb[1], rgb[2])
+        endif
+        if ctermbg != "" | let hl["ctermbg"] = ctermbg | endif
+    endif
+
 
     call deline#_highlight(a:hlname, hl)
 
@@ -655,13 +785,13 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-function! deline#defHLBGTransInner(hlname, lhlname, rhlname)
-    "no!
-    "if get(s:config["_hlonce"], a:hlname, "") == ""
-    "    let s:config["_hlonce"][a:hlname] = "*"
-    "else
-    "    return ""
-    "endif
+function! deline#defHLSeparatorInner(hlname, key, lhlname, rhlname)
+    let oncekey = get(s:config["_hlonce"], a:hlname, "")
+    if oncekey == "" || oncekey != a:key
+        let s:config["_hlonce"][a:hlname] = a:key
+    else
+        return ""
+    endif
 
     try
         silent let lhl = deline#_parseHL(a:lhlname)
