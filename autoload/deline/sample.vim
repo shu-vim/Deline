@@ -212,7 +212,7 @@ function! deline#sample#powerful()
                 \ deline#defHLMode("DelineHLMode_tmp"),
                 \ deline#defHLCombined("DelineHLMode", "mode()", "DelineHL", "DelineHLMode_tmp", "fg/fg+bg7"),
                 \
-                \ deline#defHLCombined("DelineHLLeft", "mode()", "DelineHL", "DelineHLMode", "fg/fg+bg"),
+                \ deline#defHLCombined("DelineHLLeft", "", "DelineHL", "guibg=#aaaaaa", "fg/fg+bg"),
                 \ deline#defHLSeparator("DelineHLLeftSep", "mode()", "DelineHLLeft", "DelineHL"),
                 \ deline#defHLCombined("DelineHLAlert", "", "DelineHL", "guibg=#ff0000 ctermbg=Red", "fg/fg+bg"),
                 \ deline#defHLSeparator("DelineHLLeftAlertSep", "mode()", "DelineHLLeft", "DelineHLAlert"),
@@ -258,10 +258,10 @@ function! deline#sample#powerful()
                 \ 
                 \ deline#rightalign(),
                 \
+                \ deline#defHLCombined("DelineHLRight", "", "DelineHLLeft", "DelineHL", "fg/fg+bg1"),
+                \ deline#defHLCombined("DelineHLRight2", "", "DelineHLRight", "DelineHL", "fg/fg+bg1"),
+                \ deline#defHLCombined("DelineHLRight3", "mode()", "DelineHLRight2", "DelineHL", "fg/fg+bg1"),
                 \ deline#defHLCombined("DelineHLRight4", "mode()", "DelineHLMode", "DelineHL", "fg/fg+bg3"),
-                \ deline#defHLCombined("DelineHLRight3", "mode()", "DelineHLRight4", "DelineHL", "fg/fg+bg1"),
-                \ deline#defHLCombined("DelineHLRight2", "mode()", "DelineHLRight3", "DelineHL", "fg/fg+bg1"),
-                \ deline#defHLCombined("DelineHLRight", "mode()", "DelineHLRight2", "DelineHL", "fg/fg+bg1"),
                 \ deline#defHLCombined("DelineHLRightAlert_tmp", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLRight", ""),
                 \ deline#defHLAdjFG("DelineHLRightAlert", "mode()", "DelineHLRightAlert_tmp"),
                 \ deline#defHLCombined("DelineHLRight2Alert", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLRight2", ""),
