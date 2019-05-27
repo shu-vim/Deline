@@ -754,7 +754,7 @@ function! deline#defHLAdjFGInner(hlname, key, basehlname)
 
     let bghsv = deline#color#hsv(bgrgb[0], bgrgb[1], bgrgb[2])
     let fghsv = deline#color#hsv(fgrgb[0], fgrgb[1], fgrgb[2])
-    "echom a:hlname . ' ' . string(fghsv) . ' ' . string(bghsv)
+    "echom a:hlname . ' ' . string(fgrgb) . ' ' . string(fghsv) . ' vs ' . string(bgrgb) . ' ' . string(bghsv)
 
     if abs(bghsv[2] - fghsv[2]) < 128
         "if bghsv[2] < 128
@@ -785,6 +785,7 @@ function! deline#defHLAdjFGInner(hlname, key, basehlname)
     if guifg != "" | let hl["guifg"] = guifg | endif
 
     call deline#_highlight(a:hlname, hl)
+    "echom '=>'. a:hlname . ' ' . string(hl)
 
     return ""
 endfunction
