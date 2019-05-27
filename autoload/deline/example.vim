@@ -97,7 +97,7 @@ function! deline#example#simple()
     "             \ },
     "             \ })
 
-    call deline#_apply()
+    silent doautocmd User DelineRefresh
 endfunction
 
 """ gradient color of mode
@@ -169,7 +169,7 @@ function! deline#example#gradient()
                 \
                 \ ])
 
-    call deline#_apply()
+    silent doautocmd User DelineRefresh
 endfunction
 
 """ powerline like definition
@@ -279,7 +279,7 @@ function! deline#example#powerful()
                 \ deline#space(),
                 \ ])
 
-    call deline#_apply()
+    silent doautocmd User DelineRefresh
 endfunction
 
 function! deline#example#powerful_branchInner()
@@ -436,5 +436,5 @@ function! deline#example#expandable()
             \ deline#space(),
             \ ])
 
-    call deline#_apply()
+    silent doautocmd User DelineRefresh
 endfunction

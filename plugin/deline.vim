@@ -62,7 +62,6 @@ function! DelineConfigGet(key, defvalue)
     return deline#_config_get(a:key, a:defvalue)
 endfunction
 
-
 if g:Deline_DefaultDefinitions 
     if g:Deline_Powerful
         call deline#example#powerful()
@@ -75,4 +74,5 @@ augroup Deline
 autocmd!
 autocmd VimEnter * call deline#_initHighlight()
 autocmd BufEnter,ColorScheme,VimResized * call deline#_apply() | call deline#_initHighlight()
+autocmd User DelineRefresh call deline#_apply() | call deline#_initHighlight()
 augroup END
