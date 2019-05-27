@@ -24,7 +24,7 @@ function! deline#color#add(attr1, attr2, percent)
     return [r, g, b]
 endfunction
 
-function! deline#color#hsv(r, g, b)
+function! deline#color#hsl(r, g, b)
     let r = a:r
     let g = a:g
     let b = a:b
@@ -39,65 +39,71 @@ function! deline#color#hsv(r, g, b)
     if rgbmax < b | let rgbmax = b | endif
 
     " H
-    if rgbmax == rgbmin
+    if r == g && g == b
         let h = 0
     elseif r == rgbmax
-        let h = 60 * ((g - b) / (rgbmax - rgbmin))
+        let h = 60 * (g-b) / (rgbmax-rgbmin)
     elseif g == rgbmax
-        let h = 60 * ((b - r) / (rgbmax - rgbmin)) + 120
+        let h = 60 * (b-r) / (rgbmax-rgbmin) + 120
     elseif b == rgbmax
-        let h = 60 * ((r - g) / (rgbmax - rgbmin)) + 240
+        let h = 60 * (r-g) / (rgbmax-rgbmin) + 240
     endif
-    if h < 0
-        let h = h + 360
-    endif
+
+    " L
+    let l = 1.0*(rgbmax + rgbmin) / 2 / 255
 
     " S
-    if rgbmax == 0
-        let s = 0
+    if l <= 0.5
+        let s = 1.0*(rgbmax - rgbmin) / (rgbmax + rgbmin)
     else
-        let s = (rgbmax - rgbmin) / rgbmax * 255
+        let s = 1.0*(rgbmax - rgbmin) / (2 * 255 - rgbmax + rgbmin)
     endif
 
-    " V
-    let v = rgbmax
-
-    return [float2nr(h),float2nr(s),float2nr(v)]
+    return [float2nr(h),float2nr(s*100),float2nr(l*100)]
 endfunction
 
-function! deline#color#rgb(h, s, v)
+function! deline#color#rgb(h, s, l)
     let h = a:h
-    let s = a:s
-    let v = a:v
+    let s = 1.0*a:s / 100
+    let l = 1.0*a:l / 100
 
-    let rgbmax = v
-    let rgbmin = rgbmax - (s * rgbmax / 255)
-
-    if h <= 60
-        let r = rgbmax
-        let g = (h / 60) * (rgbmax - rgbmin) + rgbmin
-        let b = rgbmin
-    elseif h <= 120
-        let r = ((120 - h) / 60) * (rgbmax - rgbmin) + rgbmin
-        let g = rgbmax
-        let b = rgbmin
-    elseif h <= 180
-        let r = rgbmin
-        let g = rgbmax
-        let b = ((h - 120) / 60) * (rgbmax - rgbmin) + rgbmin
-    elseif h <= 240
-        let r = rgbmin
-        let g = ((240 - h) / 60) * (rgbmax - rgbmin) + rgbmin
-        let b = rgbmax
-    elseif h <= 300
-        let r = ((h - 240) / 60) * (rgbmax - rgbmin) + rgbmin
-        let g = rgbmin
-        let b = rgbmax
+    if l <= 0.5
+        let rgbmax = (l + l * s) * 255
+        let rgbmin = (l - l * s) * 255
     else
-        let r = rgbmax
-        let g = rgbmin
-        let b = ((360 - h) / 60) * (rgbmax - rgbmin) + rgbmin
+        let rgbmax = (l + (1.0-l)*s) * 255
+        let rgbmin = (l - (1.0-l)*s) * 255
     endif
 
-    return [r,g,b]
+    if 0 <= h && h < 60
+        let r = rgbmax
+        let g = (h/60)*(rgbmax-rgbmin)+rgbmin
+        let b = rgbmin
+    elseif 60 <= h && h < 120
+        let r = ((120-h)/60)*(rgbmax-rgbmin)+rgbmin
+        let g = rgbmax
+        let b = rgbmin
+    elseif 120 <= h && h < 180
+        let r = rgbmin
+        let g = rgbmax
+        let b = ((h-120)/60)*(rgbmax-rgbmin)+rgbmin
+    elseif 180 <= h && h < 240
+        let r = rgbmin
+        let g = ((240-h)/60)*(rgbmax-rgbmin)+rgbmin
+        let b = rgbmax
+    elseif 240 <= h && h < 300
+        let r = ((h-240)/60)*(rgbmax-rgbmin)+rgbmin
+        let g = rgbmin
+        let b = rgbmax
+    elseif 300 <= h && h < 360
+        let r = rgbmax
+        let g = rgbmin
+        let b = ((360-h)/60)*(rgbmax-rgbmin)+rgbmin
+    else
+        let r = rgbmax
+        let g = rgbmax
+        let b = rgbmax
+    endif
+
+    return [float2nr(r),float2nr(g),float2nr(b)]
 endfunction

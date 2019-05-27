@@ -752,34 +752,26 @@ function! deline#defHLAdjFGInner(hlname, key, basehlname)
     let bgrgb = deline#color#attr_to_rgb(guibg)
     let fgrgb = deline#color#attr_to_rgb(guifg)
 
-    let bghsv = deline#color#hsv(bgrgb[0], bgrgb[1], bgrgb[2])
-    let fghsv = deline#color#hsv(fgrgb[0], fgrgb[1], fgrgb[2])
-    "echom a:hlname . ' ' . string(fgrgb) . ' ' . string(fghsv) . ' vs ' . string(bgrgb) . ' ' . string(bghsv)
+    let bghsl = deline#color#hsl(bgrgb[0], bgrgb[1], bgrgb[2])
+    let fghsl = deline#color#hsl(fgrgb[0], fgrgb[1], fgrgb[2])
+    "echom a:hlname . ' ' . string(fgrgb) . ' ' . string(fghsl) . ' vs ' . string(bgrgb) . ' ' . string(bghsl)
 
-    if abs(bghsv[2] - fghsv[2]) < 128
-        "if bghsv[2] < 128
-        "    let fghsv[2] = bghsv[2] * 2
-        "else
-        "    let fghsv[2] = bghsv[2] / 2
-        "endif
-
-        if fghsv[2] < bghsv[2] && fghsv[2] < 64
-            let fghsv[2] = 255 - fghsv[2]
-        elseif fghsv[2] < bghsv[2] && fghsv[2] >= 64
-            let fghsv[2] = fghsv[2] - 64
-        elseif bghsv[2] <= fghsv[2] && (255-64) < fghsv[2]
-            let fghsv[2] = 255 - fghsv[2]
-        else
-            let fghsv[2] = fghsv[2] + 64
+    for i in range(3)
+        if abs(fghsl[2] - bghsl[2]) < 25
+            if bghsl[2] < 50
+                let fghsl[2] = min([float2nr(fghsl[2]+fghsl[2]*1.0/3), 100])
+            else
+                let fghsl[2] = max([float2nr(fghsl[2]-fghsl[2]*1.0/3), 0])
+            endif
         endif
+    endfor
+
+    if abs(fghsl[2] - bghsl[2]) < 25
+        let fghsl[1] = (fghsl[1] + bghsl[1]) / 2
     endif
 
-    if abs(bghsv[1] - fghsv[1]) > 128
-        let fghsv[1] = (fghsv[1] + bghsv[1]) / 2
-    endif
-
-    let fgrgb = deline#color#rgb(fghsv[0], fghsv[1], fghsv[2])
-    "echom '=>'. string(fghsv) . '==' . string(fgrgb)
+    let fgrgb = deline#color#rgb(fghsl[0], fghsl[1], fghsl[2])
+    "echom '=>'. string(fghsl) . '==' . string(fgrgb)
     let guifg = printf("#%02x%02x%02x", float2nr(fgrgb[0]), float2nr(fgrgb[1]), float2nr(fgrgb[2]))
 
     if guifg != "" | let hl["guifg"] = guifg | endif
