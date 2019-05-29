@@ -48,6 +48,11 @@ function! deline#rightalign()
 endfunction
 
 """file name
+"""
+""" {fmt} consists of expand-expr and slice-expr.
+""" expand-expr: see |expand()|
+""" slice-expr: [{number}] or [:{number}] sets max length
+""" Example: :p:t:h[2] ==> 'myfolder' -> 'myf'
 function! deline#file(fmt)
     return "%{deline#fileInner('" . a:fmt . "')}"
 endfunction
