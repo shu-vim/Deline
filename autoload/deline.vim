@@ -559,7 +559,13 @@ function! deline#fileInner(fmt)
 
         try
             let g = matchlist(f, '^\v([^:])*(%(:\w)+)(.*)')
-            let v = v . g[1] . expand("%" . g[2]) . g[3]
+            let s = matchlist(g[3], '\v\[:?(\d+)\](.*)')
+
+            if len(s) > 0
+                let v = v . g[1] . expand("%" . g[2])[:s[1]] . s[2]
+            else
+                let v = v . g[1] . expand("%" . g[2]) . g[3]
+            endif
         catch
             let v = v . expand("%" . f)
         endtry
