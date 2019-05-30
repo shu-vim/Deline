@@ -567,7 +567,7 @@ function! deline#fileInner(fmt)
             let s = matchlist(g[3], '\v\[:?(\d+)\](.*)')
 
             if len(s) > 0
-                let v = v . g[1] . expand("%" . g[2])[:s[1]] . s[2]
+                let v = v . g[1] . join(split(expand("%" . g[2]), '\zs')[:s[1]], '') . s[2]
             else
                 let v = v . g[1] . expand("%" . g[2]) . g[3]
             endif
