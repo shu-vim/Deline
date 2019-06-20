@@ -106,14 +106,18 @@ endfunction
 """ sort:sample2
 function! deline#example#gradient()
     call Deline([
-                \ deline#defHLCombined("DelineHL", "", "Normal", "Normal", ""),
+                \ deline#dynamic#periodic(50),
+                \ deline#dynamic#if_mode_changed(deline#serial([
+                \ deline#defHLCombined("DelineHL", "", "Normal", "Normal", "")])),
                 \ deline#defHLMode("DelineHLMode_tmp"),
-                \ deline#defHLCombined("DelineHLMode", "mode()", "DelineHLMode_tmp", "DelineHL", "fg/fg+bg3"),
-                \
-                \ deline#defHLCombined("DelineHLLeft", "mode()", "DelineHL", "DelineHLMode", "fg/fg+bg3"),
-                \ deline#defHLCombined("DelineHLLeftAlert_tmp", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLLeft", ""),
-                \ deline#defHLAdjFG("DelineHLLeftAlert", "mode()", "DelineHLLeftAlert_tmp"),
-                \ deline#defHLCombined("DelineHLAlert", "", "guifg=#aa0000 ctermfg=Red", "DelineHL", ""),
+                \ deline#dynamic#if_mode_changed(deline#serial([
+                    \ deline#defHLCombined("DelineHLMode", "mode()", "DelineHLMode_tmp", "DelineHL", "fg/fg+bg3"),
+                    \
+                    \ deline#defHLCombined("DelineHLLeft", "mode()", "DelineHL", "DelineHLMode", "fg/fg+bg3"),
+                    \ deline#defHLCombined("DelineHLLeftAlert_tmp", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLLeft", ""),
+                    \ deline#defHLAdjFG("DelineHLLeftAlert", "mode()", "DelineHLLeftAlert_tmp"),
+                    \ deline#defHLCombined("DelineHLAlert", "", "guifg=#aa0000 ctermfg=Red", "DelineHL", ""),
+                    \ ])),
                 \ 
                 \ deline#comment("* MODE *"),
                 \ deline#hl("DelineHLMode"),
@@ -127,8 +131,10 @@ function! deline#example#gradient()
                 \ deline#hl("DelineHLLeftAlert"),
                 \ deline#readonly("[RO] ", ''),
                 \ deline#modified('+ ', ''),
-                \ deline#defHLCombined("DelineHLPath_tmp", "mode()", "guifg=#777777 ctermfg=LightGray", "DelineHLLeft", ""),
-                \ deline#defHLAdjFG("DelineHLPath", "mode()", "DelineHLPath_tmp"),
+                \ deline#dynamic#if_mode_changed(deline#serial([
+                    \ deline#defHLCombined("DelineHLPath_tmp", "mode()", "guifg=#777777 ctermfg=LightGray", "DelineHLLeft", ""),
+                    \ deline#defHLAdjFG("DelineHLPath", "mode()", "DelineHLPath_tmp"),
+                    \ ])),
                 \ deline#hl("DelineHLPath"), deline#file(':p:h:t'), "/",
                 \ deline#hl("DelineHLLeft"), deline#file(':p:t'),
                 \ deline#space(),
@@ -136,14 +142,16 @@ function! deline#example#gradient()
                 \
                 \ deline#rightalign(),
                 \
-                \ deline#defHLCombined("DelineHLRight", "mode()", "DelineHLLeft", "Normal", "fg/fg+bg3"),
-                \ deline#defHLCombined("DelineHLRightAlert_tmp", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLRight", ""),
-                \ deline#defHLAdjFG("DelineHLRightAlert", "mode()", "DelineHLRightAlert_tmp"),
-                \ deline#defHLCombined("DelineHLRight2", "mode()", "DelineHLRight", "Normal", "fg/fg+bg3"),
-                \ deline#defHLCombined("DelineHLRight2Alert_tmp", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLRight2", ""),
-                \ deline#defHLAdjFG("DelineHLRight2Alert", "mode()", "DelineHLRight2Alert_tmp"),
-                \ deline#defHLCombined("DelineHLRight3", "mode()", "DelineHLRight2", "Normal", "fg/fg+bg3"),
-                \ deline#defHLCombined("DelineHLRight4", "mode()", "DelineHLRight3", "Normal", "fg/fg+bg3"),
+                \ deline#dynamic#if_mode_changed(deline#serial([
+                    \ deline#defHLCombined("DelineHLRight", "mode()", "DelineHLLeft", "Normal", "fg/fg+bg3"),
+                    \ deline#defHLCombined("DelineHLRightAlert_tmp", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLRight", ""),
+                    \ deline#defHLAdjFG("DelineHLRightAlert", "mode()", "DelineHLRightAlert_tmp"),
+                    \ deline#defHLCombined("DelineHLRight2", "mode()", "DelineHLRight", "Normal", "fg/fg+bg3"),
+                    \ deline#defHLCombined("DelineHLRight2Alert_tmp", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLRight2", ""),
+                    \ deline#defHLAdjFG("DelineHLRight2Alert", "mode()", "DelineHLRight2Alert_tmp"),
+                    \ deline#defHLCombined("DelineHLRight3", "mode()", "DelineHLRight2", "Normal", "fg/fg+bg3"),
+                    \ deline#defHLCombined("DelineHLRight4", "mode()", "DelineHLRight3", "Normal", "fg/fg+bg3"),
+                    \ ])),
                 \
                 \ deline#comment("\ deline#fileformat(),"),
                 \ deline#hl("DelineHLRight"),
@@ -213,7 +221,7 @@ function! deline#example#powerful()
                 \ deline#defHLCombined("DelineHLPath_tmp", "mode()", "guifg=#777777 ctermfg=LightGray", "DelineHLLeft", ""),
                 \ deline#defHLAdjFG("DelineHLPath", "mode()", "DelineHLPath_tmp"),
                 \ deline#readonly("\ue0a2", ''),
-                \ deline#hl("DelineHLPath"), deline#file(':p:h:t'), "/",
+                \ deline#hl("DelineHLPath"), deline#file(':p:h:t[:4]'), "/",
                 \ deline#hl("DelineHLLeft"), deline#file(':p:t'),
                 \ deline#space(),
                 \
