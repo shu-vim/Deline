@@ -106,12 +106,13 @@ endfunction
 """ sort:sample2
 function! deline#example#gradient()
     call Deline([
-                \ deline#defHLCombined("DelineHL", "", "Normal", "StatusLine", "fg/fg+bg3"),
+                \ deline#defHLCombined("DelineHL", "", "Normal", "Normal", ""),
                 \ deline#defHLMode("DelineHLMode_tmp"),
                 \ deline#defHLCombined("DelineHLMode", "mode()", "DelineHLMode_tmp", "DelineHL", "fg/fg+bg3"),
                 \
                 \ deline#defHLCombined("DelineHLLeft", "mode()", "DelineHL", "DelineHLMode", "fg/fg+bg3"),
-                \ deline#defHLCombined("DelineHLLeftAlert", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLLeft", ""),
+                \ deline#defHLCombined("DelineHLLeftAlert_tmp", "mode()", "guifg=#aa0000 ctermfg=Red", "DelineHLLeft", ""),
+                \ deline#defHLAdjFG("DelineHLLeftAlert", "mode()", "DelineHLLeftAlert_tmp"),
                 \ deline#defHLCombined("DelineHLAlert", "", "guifg=#aa0000 ctermfg=Red", "DelineHL", ""),
                 \ 
                 \ deline#comment("* MODE *"),
