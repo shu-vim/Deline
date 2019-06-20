@@ -17,6 +17,11 @@ function! deline#expr(expr)
     return "%{" . a:expr . "}"
 endfunction
 
+"""simply joins {list}
+function! deline#serial(list)
+    return join(a:list, '')
+endfunction
+
 """comment (simply ignored as statusline)
 function! deline#comment(text)
     return ""

@@ -64,6 +64,28 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+"""if mode is chaned, {t} is evaluated.
+"""Use |deline#serial()| to eval multiple functions.
+"""sort:dynamic
+function! deline#dynamic#if_mode_changed(t)
+    let d = {
+                \ "mode": "",
+                \ "t": a:t,
+                \ }
+    function! d.eval() dict
+        let m = mode()
+        if m != self.mode
+            let self.mode = m
+            return deline#dynamic#_eval(self.t)
+        else
+            return ""
+        endif
+    endfunction
+    return d
+endfunction
+
+"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 """elem of {list} one by one
 """{list} is a list of text.
 """Changes texts one by one on every evaluation.

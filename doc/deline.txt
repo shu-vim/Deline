@@ -76,6 +76,7 @@ deline#preview()                %w
 deline#quickfix()               %q
 deline#readonly({t}, {f})       returns {t} if &readonly, else {f}
 deline#rightalign()             %=
+deline#serial({list})           simply joins {list}
 deline#space()                  ' '
 deline#strftime({fmt})          |strftime()|
 deline#system({cmd})            |system()|
@@ -86,6 +87,8 @@ deline#dynamic#cyclic({list})   elem of {list} one by one
 deline#dynamic#expr({expr})     returns {expr} dynamically.
 deline#dynamic#if({expr}, {t}, {f})
                                 if eval({expr}) then {t} else {f}
+deline#dynamic#if_mode_changed({t})
+                                if mode is chaned, {t} is evaluated.
 deline#dynamic#periodic({period})
                                 defines {period} by millisecond.
 
@@ -189,6 +192,13 @@ deline#defHLCombined({hlname}, {keyexpr}, {fghlname}, {bghlname}, {method})
                    'fg/fg+bg3'       xxxbg is 7/10 of {fghlname} and 3/10 of {bghlname}
                    'fg/fg+bg1'       xxxbg is 9/10 of {fghlname} and 1/10 of {bghlname}
 
+                                                               *deline#file()*
+deline#file({fmt})
+                 {fmt} consists of expand-expr and slice-expr.
+                 expand-expr: see |expand()|
+                 slice-expr: [{number}] or [:{number}] sets max length
+                 Example: :p:t:h[2] ==> 'myfolder' -> 'myf'
+
                                                            *deline#notsaved()*
 deline#notsaved({min_ago})
                 Returns duration from last save in "{hour}h{minute}m" format.
@@ -245,6 +255,10 @@ deline#dynamic#expr({expr})
                                                          *deline#dynamic#if()*
 deline#dynamic#if({expr}, {t}, {f})
                 Dynamically returns {t} or {f} by eval({expr}).
+
+                                            *deline#dynamic#if_mode_changed()*
+deline#dynamic#if_mode_changed({t})
+                Use |deline#serial()| to eval multiple functions.
 
                                                    *deline#dynamic#periodic()*
 deline#dynamic#periodic({period})
