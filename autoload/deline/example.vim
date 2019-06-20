@@ -302,11 +302,15 @@ function! deline#example#powerful_branch_cb(ch, msg)
     call deline#_config_set("sample/powerful/branch", msg)
 endfunction
 
+function! deline#example#powerful_branch_err_cb(ch, msg)
+    call deline#_config_set("sample/powerful/branch", "")
+endfunction
+
 function! deline#example#powerful_branch()
     let d = {}
     function! d.eval() dict
-        call job_start("git branch", {"out_cb": "deline#example#powerful_branch_cb"})
-        call job_start("hg branch", {"out_cb": "deline#example#powerful_branch_cb"})
+        call job_start("git branch", {"out_cb": "deline#example#powerful_branch_cb", "err_cb": "deline#example#powerful_branch_err_cb"})
+        call job_start("hg branch", {"out_cb": "deline#example#powerful_branch_cb", "err_cb": "deline#example#powerful_branch_err_cb"})
         return ""
     endfunction
     "    try
