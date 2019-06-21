@@ -64,7 +64,7 @@ endfunction
 
 "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-"""if mode is chaned, {t} is evaluated.
+"""(EXPERIMENTAL) if mode is chaned, {t} is evaluated.
 """Use |deline#serial()| to eval multiple functions.
 """sort:dynamic
 function! deline#dynamic#if_mode_changed(t)

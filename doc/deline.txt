@@ -83,12 +83,14 @@ deline#system({cmd})            |system()|
 deline#winpercent()             %P
 deline#extra#weatherhacks({url}, {interval})
                                  fetch & displays weather info from weatherhacks site. 
+deline#meta#onmodechanged({stlist})
+                                 (EXPERIMENTAL) manipulates {stlist} (a list of `deline#xxx()`), each element is evaluated only when mode is changed.
 deline#dynamic#cyclic({list})   elem of {list} one by one
 deline#dynamic#expr({expr})     returns {expr} dynamically.
 deline#dynamic#if({expr}, {t}, {f})
                                 if eval({expr}) then {t} else {f}
 deline#dynamic#if_mode_changed({t})
-                                if mode is chaned, {t} is evaluated.
+                                (EXPERIMENTAL) if mode is chaned, {t} is evaluated.
 deline#dynamic#periodic({period})
                                 defines {period} by millisecond.
 

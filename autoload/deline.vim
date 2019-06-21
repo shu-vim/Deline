@@ -492,11 +492,13 @@ endfunction
 function! deline#_initHighlight()
     let s:config["_hlonce"] = {} " hlname => key
     let s:last_mode = '0'
+    let g:deline__meta_mode = " "
 
     call deline#_highlight("User1", get(s:config, "hl_1", {}))
     "
     call deline#_highlight("User3", get(s:config, "hl_3", {}))
     call deline#_highlight("User4", get(s:config, "hl_4", {}))
+
     redraw
 endfunction
 
