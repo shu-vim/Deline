@@ -529,21 +529,16 @@ function! deline#_highlight(name, dict)
     "redraw
 endfunction
 
-let s:fileInnerCache = {} " {bufnr(num): {fmt(string): {value: (string), age: (num)}}}
+augroup Deline_FileInner
+    autocmd!
+    autocmd BufNewFile,BufRead * let s:fileInnerCache = {}
+augroup END
+let s:fileInnerBufnr = 0
+let s:fileInnerCache = {} " {fmt(string): value(string)}
 function! deline#fileInner(fmt)
     let bufnr = bufnr("%")
-    " let defva = {"age": 0}
-    " let va = get(get(s:fileInnerCache, bufnr, {}), a:fmt, defva)
-    " if va.age > 0
-    "     let s:fileInnerCache[bufnr][a:fmt].age = s:fileInnerCache[bufnr][a:fmt].age - 1
-    "     return va.value
-    " endif
-    if has_key(s:fileInnerCache, bufnr) && has_key(s:fileInnerCache[bufnr], a:fmt)
-        let va = s:fileInnerCache[bufnr][a:fmt]
-        if va.age > 0
-            let s:fileInnerCache[bufnr][a:fmt].age = s:fileInnerCache[bufnr][a:fmt].age - 1
-            return va.value
-        endif
+    if bufnr == s:fileInnerBufnr && has_key(s:fileInnerCache, a:fmt)
+        return s:fileInnerCache[a:fmt]
     endif
 
     if bufname("%") == ""
@@ -554,12 +549,8 @@ function! deline#fileInner(fmt)
             let v = ""
         endif
 
-        let s:fileInnerCache[bufnr] = {
-                    \ a:fmt : {
-                    \   "value": v,
-                    \   "age": 25,
-                    \ },
-                    \ }
+        let s:fileInnerBufnr = bufnr
+        let s:fileInnerCache[a:fmt] = v
         return v
     endif
 
@@ -583,26 +574,8 @@ function! deline#fileInner(fmt)
         endtry
     endfor
 
-    let age = 0
-    if a:fmt =~ ':p:t'
-        let age = 1000
-    else
-        let age = 10000
-    endif
-
-    if !has_key(s:fileInnerCache, bufnr)
-        let s:fileInnerCache[bufnr] = {
-                    \ a:fmt : {
-                    \   "value": v,
-                    \   "age": age,
-                    \ },
-                    \ }
-    else
-        let s:fileInnerCache[bufnr][a:fmt] = {
-                    \   "value": v,
-                    \   "age": age,
-                    \ }
-    endif
+    let s:fileInnerBufnr = bufnr
+    let s:fileInnerCache[a:fmt] = v
     return v
 endfunction
 
