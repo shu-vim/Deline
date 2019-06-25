@@ -541,6 +541,8 @@ function! deline#fileInner(fmt)
         return s:fileInnerCache[a:fmt]
     endif
 
+    let s:fileInnerCache = {}
+
     if bufname("%") == ""
         let v = ""
         if a:fmt =~ ':p:t'
