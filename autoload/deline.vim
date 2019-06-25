@@ -538,10 +538,10 @@ let s:fileInnerCache = {} " {fmt(string): value(string)}
 function! deline#fileInner(fmt)
     let bufnr = bufnr("%")
     if bufnr == s:fileInnerBufnr && has_key(s:fileInnerCache, a:fmt)
-        return s:fileInnerCache[a:fmt]
+            return s:fileInnerCache[a:fmt]
+    elseif bufnr != s:fileInnerBufnr
+        let s:fileInnerCache = {}
     endif
-
-    let s:fileInnerCache = {}
 
     if bufname("%") == ""
         let v = ""
